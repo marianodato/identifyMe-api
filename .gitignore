@@ -31,3 +31,18 @@
 
 # "temporary" build files
 /target
+
+# OS X files
+*.DS_Store
+
+# IntelliJ IDEA files
+*.idea
+
+# Object files
+*out
+
+# Cache
+*.slcache
+
+# Environment variables
+*.env
