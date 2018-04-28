@@ -1,8 +1,12 @@
 package webserver
 
+import grails.converters.JSON
+
 class PingController {
 
     def index() {
-        render "pong"
+        def resp = [:]
+        resp.ping = "pong"
+        render resp as JSON
     }
 }

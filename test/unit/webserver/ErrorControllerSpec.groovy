@@ -1,5 +1,6 @@
 package webserver
 
+import grails.converters.JSON
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 import webserver.exception.BadRequestException
@@ -12,11 +13,11 @@ class ErrorControllerSpec extends Specification {
         request.forwardURI = "/test/404"
 
         when:
-        def resp = controller.notFound()
+        controller.notFound()
 
         then:
-        resp.status == 404
-        resp.response.equals(["cause": [], "status": 404, "error": "not_found", "message": "Resource /test/404 not found."])
+        response.status == 404
+        controller.response.json == JSON.parse("{\"cause\":[], \"message\":\"Resource /test/404 not found.\", \"error\":\"not_found\", \"status\":404}")
     }
 
     void "test handle custom error"() {
@@ -24,11 +25,11 @@ class ErrorControllerSpec extends Specification {
         request.exception = new BadRequestException("Bad Request")
 
         when:
-        def resp = controller.handleError()
+        controller.handleError()
 
         then:
-        resp.status == 400
-        resp.response.equals(["cause": [], "status": 400, "error": "bad_request", "message": "Bad Request"])
+        response.status == 400
+        controller.response.json == JSON.parse("{\"cause\":[], \"message\":\"Bad Request\", \"error\":\"bad_request\", \"status\":400}")
     }
 
     void "test handle error"() {
@@ -36,10 +37,10 @@ class ErrorControllerSpec extends Specification {
         request.exception = new Exception("Error example")
 
         when:
-        def resp = controller.handleError()
+        controller.handleError()
 
         then:
-        resp.status == 500
-        resp.response.equals(["cause": [], "status": 500, "error": "internal_error", "message": "Oops! Something went wrong..."])
+        response.status == 500
+        controller.response.json == JSON.parse("{\"cause\":[], \"message\":\"Oops! Something went wrong...\", \"error\":\"internal_error\", \"status\":500}")
     }
 }
