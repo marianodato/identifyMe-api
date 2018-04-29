@@ -17,12 +17,12 @@ class UrlMappings {
             action = [POST: "logout"]
         }
 
-        /*"/users"{
+        "/users"{
             controller = "user"
-            action = [POST: "createUser", GET: "getAllUsers"]
+            action = [POST: "createUser"] //GET: "getAllUsers"
         }
 
-        "/users/$id"{
+        /*"/users/$id"{
             controller = "user"
             action = [GET: "getUser", PUT: "modifyUser", DELETE: "deleteUser"]
         }

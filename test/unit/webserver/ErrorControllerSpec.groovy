@@ -17,7 +17,7 @@ class ErrorControllerSpec extends Specification {
 
         then:
         response.status == 404
-        controller.response.json == JSON.parse("{\"cause\":[], \"message\":\"Resource /test/404 not found.\", \"error\":\"not_found\", \"status\":404}")
+        controller.response.json == JSON.parse("{\"cause\":[], \"message\":\"Recurso /test/404 no encontrado.\", \"error\":\"not_found\", \"status\":404}")
     }
 
     void "test handle custom error"() {
@@ -41,6 +41,6 @@ class ErrorControllerSpec extends Specification {
 
         then:
         response.status == 500
-        controller.response.json == JSON.parse("{\"cause\":[], \"message\":\"Oops! Something went wrong...\", \"error\":\"internal_error\", \"status\":500}")
+        controller.response.json == JSON.parse("{\"cause\":[], \"message\":\"Ups! Algo salio mal...\", \"error\":\"internal_error\", \"status\":500}")
     }
 }

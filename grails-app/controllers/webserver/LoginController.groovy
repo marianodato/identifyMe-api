@@ -10,14 +10,16 @@ class LoginController {
 
     def login(){
 
+        def request = request.JSON
         log.info("Params: " + params)
+        log.info("Request: " + request)
 
-        if (!params.username || !params.password || params.accessToken){
+        if (!request.username || !request.password || params.accessToken) {
             log.error("Invalid Paramenters!")
             throw new BadRequestException("Parámetros inválidos!")
         }
 
-        def accessToken = loginService.doLogin(params.username, params.password)
+        def accessToken = loginService.doLogin(request.username, request.password)
         def resp = [:]
         resp.accessToken = accessToken
         response.status = 201
@@ -31,7 +33,7 @@ class LoginController {
         tokenService.deleteAccessToken(user)
 
         def resp = [:]
-        resp.message = "User logged out!"
+        resp.message = "Usuario deslogueado!"
         response.status = 201
         render resp as JSON
     }

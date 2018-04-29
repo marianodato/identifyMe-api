@@ -18,6 +18,13 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         LogManager.getRootLogger().setLevel(Level.INFO)
     }
 
+    static void revokeMetaClassChanges(Class type, def instance = null) {
+        GroovySystem.metaClassRegistry.removeMetaClass(type)
+        if (instance != null) {
+            instance.metaClass = null
+        }
+    }
+
     void "test login invalid parameters 1"(){
         given:
         controller.request.method = 'POST'
@@ -30,7 +37,7 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
     void "test login invalid parameters 2"(){
         given:
         controller.request.method = 'POST'
-        controller.params.username = "Pepepe"
+        controller.request.JSON.username = "Pepepe"
         when:
         controller.login()
         then:
@@ -40,8 +47,8 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
     void "test login invalid parameters 3"(){
         given:
         controller.request.method = 'POST'
-        controller.params.username = "Pepepe"
-        controller.params.password = "Password1*"
+        controller.request.JSON.username = "Pepepe"
+        controller.request.JSON.password = "Password1*"
         controller.params.accessToken = "accessToken"
         when:
         controller.login()
@@ -52,8 +59,8 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
     void "test login cannot authenticate user 1"(){
         given:
         controller.request.method = 'POST'
-        controller.params.username = "Pepepe"
-        controller.params.password = "Password1*"
+        controller.request.JSON.username = "Pepepe"
+        controller.request.JSON.password = "Password1*"
         when:
         controller.login()
         then:
@@ -66,13 +73,14 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         user.dateCreated = new Date()
         user.save(flush: true)
         controller.request.method = 'POST'
-        controller.params.username = "Pepepe"
-        controller.params.password = "incorrect"
+        controller.request.JSON.username = "Pepepe"
+        controller.request.JSON.password = "incorrect"
         when:
         controller.login()
         then:
         thrown AuthException
-        user.count() == 1
+        User.count() == 1
+        cleanup:
         User.deleteAll(User.list())
     }
 
@@ -82,8 +90,8 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         user.dateCreated = new Date()
         user.save(flush: true)
         controller.request.method = 'POST'
-        controller.params.username = "Pepepe"
-        controller.params.password = "Password1*"
+        controller.request.JSON.username = "Pepepe"
+        controller.request.JSON.password = "Password1*"
         controller.loginService.tokenService.utilsService.metaClass.saveInstance{ def instance ->
             return false
         }
@@ -91,8 +99,10 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         controller.login()
         then:
         thrown RuntimeException
-        user.count() == 1
+        User.count() == 1
+        cleanup:
         User.deleteAll(User.list())
+        revokeMetaClassChanges(UtilsService, controller.loginService.tokenService.utilsService)
     }
 
     void "test login ok"(){
@@ -101,8 +111,8 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         user.dateCreated = new Date()
         user.save(flush: true)
         controller.request.method = 'POST'
-        controller.params.username = "Pepepe"
-        controller.params.password = "Password1*"
+        controller.request.JSON.username = "Pepepe"
+        controller.request.JSON.password = "Password1*"
         controller.loginService.tokenService.utilsService.metaClass.saveInstance{ def instance ->
             return instance.save(flush:true)
         }
@@ -111,8 +121,10 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         then:
         controller.response.status == 201
         controller.response.json == JSON.parse("{\"accessToken\": $user.accessToken}")
-        user.count() == 1
+        User.count() == 1
+        cleanup:
         User.deleteAll(User.list())
+        revokeMetaClassChanges(UtilsService, controller.loginService.tokenService.utilsService)
     }
 
     void "test logout cannot authenticate 1"(){
@@ -148,8 +160,10 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         controller.logout()
         then:
         thrown RuntimeException
-        user.count() == 1
+        User.count() == 1
+        cleanup:
         User.deleteAll(User.list())
+        revokeMetaClassChanges(UtilsService, controller.loginService.tokenService.utilsService)
     }
 
     void "test logout ok"(){
@@ -166,9 +180,11 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         controller.logout()
         then:
         controller.response.status == 201
-        controller.response.json == JSON.parse("{\"message\": \"User logged out!\"}")
-        user.count() == 1
+        controller.response.json == JSON.parse("{\"message\": \"Usuario deslogueado!\"}")
+        User.count() == 1
+        cleanup:
         User.deleteAll(User.list())
+        revokeMetaClassChanges(UtilsService, controller.loginService.tokenService.utilsService)
     }
 
 }

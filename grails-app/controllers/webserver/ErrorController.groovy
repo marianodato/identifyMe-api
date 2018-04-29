@@ -11,7 +11,7 @@ class ErrorController {
         try{
             def exception = request.exception
             response.status = 500
-            resp.message = "Oops! Something went wrong..."
+            resp.message = "Ups! Algo salio mal..."
             resp.error = "internal_error"
             resp.status = 500
             resp.cause = []
@@ -45,7 +45,7 @@ class ErrorController {
     def notFound() {
         def resp = [:]
         log.error("Resource $request.forwardURI not found.")
-        resp.message = "Resource $request.forwardURI not found."
+        resp.message = "Recurso $request.forwardURI no encontrado."
         resp.error = "not_found"
         resp.status = 404
         resp.cause = []
