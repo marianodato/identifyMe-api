@@ -58,4 +58,15 @@ class UserService {
         log.info("Sign up successful!")
     }
 
+    def getUser(def userId) {
+        def user = User.findById(userId)
+        log.info("User: " + user)
+        if (!user) {
+            log.error("Cannot find userId: " + userId)
+            throw new BadRequestException("No se pudo encontrar al usuario!")
+        }
+        log.info("Get successful!")
+        return user
+    }
+
 }

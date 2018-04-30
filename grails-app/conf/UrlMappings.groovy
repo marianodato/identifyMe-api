@@ -22,12 +22,14 @@ class UrlMappings {
             action = [POST: "createUser"] //GET: "getAllUsers"
         }
 
-        /*"/users/$id"{
+        "/users/$id"{
             controller = "user"
-            action = [GET: "getUser", PUT: "modifyUser", DELETE: "deleteUser"]
+            action = [GET: "getUser"] //PUT: "modifyUser", DELETE: "deleteUser"
         }
 
-        "/registration/records"{
+        //Todo Get Arduino Pulling Endpoint (GET)
+
+        /*"/registration/records"{
             controller = "registrationRecord"
             action = [POST: "createRegistrationRecord", PUT: "modifyRecord"]
         }*/
