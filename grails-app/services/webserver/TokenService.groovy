@@ -32,17 +32,14 @@ class TokenService {
         return accessToken
     }
 
-    def getUser(def accessToken){
+    def getUser(String accessToken) {
 
         log.info("Access Token: " + accessToken)
-
-        if (!accessToken) {
-            throw new AuthException("No se pudo autenticar al usuario!")
-        }
 
         def user = User.findByAccessToken(accessToken)
 
         if (!user) {
+            log.error("Cannot authenticate user! User: " + user)
             throw new AuthException("No se pudo autenticar al usuario!")
         }
 

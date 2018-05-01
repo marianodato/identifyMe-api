@@ -1,23 +1,21 @@
 package webserver
 
 import grails.converters.JSON
-import webserver.exception.BadRequestException
 
 class LoginController {
 
     def loginService
     def tokenService
+    def utilsService
 
     def login(){
 
         def request = request.JSON
         log.info("Params: " + params)
         log.info("Request: " + request)
+        request.accessToken = params.accessToken
 
-        if (!request.username || !request.password || params.accessToken) {
-            log.error("Invalid Paramenters!")
-            throw new BadRequestException("Parámetros inválidos!")
-        }
+        utilsService.validateFields(request, ['username', 'password'], ['accessToken'])
 
         def accessToken = loginService.doLogin(request.username, request.password)
         def resp = [:]
@@ -28,6 +26,10 @@ class LoginController {
 
     def logout(){
         log.info("Params: " + params)
+        def request = [:]
+        request.accessToken = params.accessToken
+
+        utilsService.validateFields(request, ['accessToken'])
 
         def user = tokenService.getUser(params.accessToken)
         tokenService.deleteAccessToken(user)

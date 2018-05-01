@@ -121,3 +121,7 @@ log4j.main = {
 
     info stdout: "grails.app", additivity: false
 }
+
+arduino = [
+        signatureKey: 'MvzLX99WFmrMilNnfqi0V6rt6zVspIxO'
+]

@@ -27,7 +27,11 @@ class UrlMappings {
             action = [GET: "getUser"] //PUT: "modifyUser", DELETE: "deleteUser"
         }
 
-        //Todo Get Arduino Pulling Endpoint (GET)
+        //TODO: Sacar esto de aca y meter en el search!!!
+        "/users/fingerprintStatus/pending"{
+            controller = "user"
+            action = [GET: "getPendingUser"]
+        }
 
         /*"/registration/records"{
             controller = "registrationRecord"

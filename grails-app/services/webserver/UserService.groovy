@@ -4,6 +4,7 @@ import grails.transaction.Transactional
 import webserver.exception.BadRequestException
 import webserver.exception.ForbiddenException
 import webserver.exception.InsufientStorageException
+import webserver.exception.NotFoundException
 
 @Transactional
 class UserService {
@@ -29,7 +30,7 @@ class UserService {
     }
 
     def createUser(def request) {
-        def user = User.findByUsername(request.username)
+        def user = User.findByUsername(request.username.toString())
         log.info("User: " + user)
 
         if (user) {
@@ -44,9 +45,9 @@ class UserService {
 
         def idsUsed = User.executeQuery('select u.fingerprintId from User u')
         def fingerprintId = getFingerprintId(idsUsed)
-        def hash = PasswordHash.createHash(request.password)
+        def hash = PasswordHash.createHash(request.password.toString())
 
-        User newUser = new User(username: request.username, name: request.name, dni: request.dni, gender: request.gender, email: request.email, phoneNumber: request.phoneNumber, isAdmin: request.isAdmin, fingerprintId: fingerprintId, fingerprintStatus: request.fingerprintStatus ? request.fingerprintStatus : "unenrolled", password: hash, accessToken: null)
+        User newUser = new User(username: request.username, name: request.name, dni: request.dni, gender: request.gender, email: request.email, phoneNumber: request.phoneNumber, isAdmin: request.isAdmin, fingerprintId: fingerprintId, fingerprintStatus: "unenrolled", password: hash, accessToken: null)
         newUser.dateCreated = new Date()
         if (!utilsService.saveInstance(newUser)) {
             newUser.discard()
@@ -58,15 +59,25 @@ class UserService {
         log.info("Sign up successful!")
     }
 
-    def getUser(def userId) {
+    def getUser(Long userId) {
         def user = User.findById(userId)
         log.info("User: " + user)
         if (!user) {
             log.error("Cannot find userId: " + userId)
-            throw new BadRequestException("No se pudo encontrar al usuario!")
+            throw new NotFoundException("No se pudo encontrar al usuario!")
         }
         log.info("Get successful!")
         return user
     }
 
+    def getPendingUser() {
+        def user = User.findByFingerprintStatus("pending")
+        log.info("User: " + user)
+        if (!user) {
+            log.error("Cannot find pending user")
+            throw new NotFoundException("No se pudo encontrar al usuario pendiente de carga!")
+        }
+        log.info("Get successful!")
+        return user
+    }
 }

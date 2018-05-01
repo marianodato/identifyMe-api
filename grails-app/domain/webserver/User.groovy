@@ -30,7 +30,7 @@ class User {
         email blank:false, nullable: false, unique: true, email: true
         phoneNumber blank:false, nullable: false, matches: '[\\+]\\d{2}[\\(]\\d{2}[\\)]\\d{4}[\\-]\\d{4}'
         isAdmin nullable: false
-        fingerprintId nullable: true, unique: true
+        fingerprintId nullable: false, unique: true
         fingerprintStatus blank:false, nullable: false, matches: '^unenrolled$|^pending$|^enrolled$'
         dateCreated nullable: false
         accessToken blank:false, nullable: true, size: 128..128, unique: true

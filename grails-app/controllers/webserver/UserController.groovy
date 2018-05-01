@@ -6,12 +6,16 @@ class UserController {
 
     def tokenService
     def userService
+    def utilsService
 
     def createUser() {
 
         def request = request.JSON
         log.info("Params: " + params)
         log.info("Request: " + request)
+        request.accessToken = params.accessToken
+
+        utilsService.validateFields(request, ['accessToken', 'username', 'password', 'name', 'dni', 'gender', 'email', 'phoneNumber', 'isAdmin'])
 
         def user = tokenService.getUser(params.accessToken)
         userService.validateAdminUser(user)
@@ -25,6 +29,12 @@ class UserController {
 
     def getUser() {
         log.info("Params: " + params)
+        def request = [:]
+        request.accessToken = params.accessToken
+        request.id = params.id
+
+        utilsService.validateFields(request, ['accessToken', 'id'])
+
         def user = tokenService.getUser(params.accessToken)
 
         if (user.id != params.id) {
@@ -46,6 +56,19 @@ class UserController {
         resp.isAdmin = queryUser.isAdmin
         response.status = 200
         render resp as JSON
+    }
 
+    def getPendingUser() {
+        def request = request.JSON
+        log.info("Request: " + request)
+
+        utilsService.validateFields(request, ['serialNumber', 'atMacAddress', 'compileDate', 'signature'])
+        utilsService.checkSignature(request)
+
+        User user = userService.getPendingUser()
+        def resp = [:]
+        resp.id = user.fingerprintId
+        response.status = 200
+        render resp as JSON
     }
 }
