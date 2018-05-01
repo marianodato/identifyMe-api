@@ -1,2 +1,2 @@
-# identifyMe-api
-Api for identifyMe project.
+# identifyMe-backend-api
+Backend api in Grails for identifyMe project.
