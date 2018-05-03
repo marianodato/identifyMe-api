@@ -34,8 +34,36 @@ environments {
     }
     production {
         dataSource {
-            dbCreate = "create-drop"
-            url = "jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000"
+            dbCreate = "update"
+            URI jdbUri = new URI(System.getenv("JAWSDB_URL"))
+            driverClassName = "com.mysql.jdbc.Driver"
+            username = jdbUri.getUserInfo().split(":")[0]
+            password = jdbUri.getUserInfo().split(":")[1]
+            port = String.valueOf(jdbUri.getPort())
+            url = "jdbc:mysql://" + jdbUri.getHost() + ":" + port + jdbUri.getPath()
+
+            properties {
+                testOnBorrow = false // en true puede tener impacto en la performance
+                testOnReturn = false // en true puede tener impacto en la performance
+                testWhileIdle = true
+
+                validationQuery = 'SELECT 1 FROM DUAL'
+                validationQueryTimeout = 3 //seg
+
+                timeBetweenEvictionRunsMillis = 1000 * 30 //30 seg
+                numTestsPerEvictionRun = 15 // valor superior al promedio de conexiones configuradas en el pool
+                minEvictableIdleTimeMillis = 1000 * 15 // 15 seg
+
+                removeAbandoned = true
+                removeAbandonedTimeout = 60 * 15 //15 min
+
+                maxWait = 100 //ms
+
+                maxActive = 10
+                maxIdle = 5
+                minIdle = 3
+                initialSize = 3
+            }
         }
     }
 }
