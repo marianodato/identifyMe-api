@@ -4,7 +4,7 @@ import grails.util.Environment
 
 class SecurityFilters {
 
-    def filters = {
+    /*def filters = {
         switchToHttps(controller:'*', action:'*') {
             before = {
                 if (!(request.isSecure() || request.getHeader('X-Forwarded-Proto')?.toLowerCase() == 'https') && !Environment.isDevelopmentMode()) {
@@ -14,5 +14,5 @@ class SecurityFilters {
                 }
             }
         }
-    }
+    }*/
 }
