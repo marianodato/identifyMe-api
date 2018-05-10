@@ -4,15 +4,15 @@ import grails.util.Environment
 
 class SecurityFilters {
 
-    /*def filters = {
+    def filters = {
         switchToHttps(controller:'*', action:'*') {
             before = {
-                if (!(request.isSecure() || request.getHeader('X-Forwarded-Proto')?.toLowerCase() == 'https') && !Environment.isDevelopmentMode()) {
+                if (!(request.isSecure() || request.getHeader('X-Forwarded-Proto')?.toLowerCase() == 'https') && !Environment.isDevelopmentMode() && Environment.getCurrent()!=Environment.PRODUCTION) {
                     def url = "https://" + request.serverName + request.forwardURI + (request.queryString ? "?" + request.queryString : "")
                     redirect(url: url, permanent: true)
                     return false
                 }
             }
         }
-    }*/
+    }
 }
