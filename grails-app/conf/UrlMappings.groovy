@@ -19,18 +19,12 @@ class UrlMappings {
 
         "/users"{
             controller = "user"
-            action = [POST: "createUser"] //GET: "getAllUsers"
+            action = [POST: "createUser", GET: "searchUsers"]
         }
 
         "/users/$id"{
             controller = "user"
             action = [GET: "getUser"] //PUT: "modifyUser", DELETE: "deleteUser"
-        }
-
-        //TODO: Sacar esto de aca y meter en el search!!!
-        "/users/fingerprintStatus/pending"{
-            controller = "user"
-            action = [GET: "getPendingUser"]
         }
 
         /*"/registration/records"{

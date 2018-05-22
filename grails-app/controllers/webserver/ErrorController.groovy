@@ -7,6 +7,7 @@ import webserver.exception.WrapperException
 class ErrorController {
 
     def handleError() {
+        log.info("ErrorController - handleError")
         def resp = [:]
         try{
             def exception = request.exception
@@ -43,6 +44,7 @@ class ErrorController {
     }
 
     def notFound() {
+        log.info("ErrorController - notFound")
         def resp = [:]
         log.error("Resource $request.forwardURI not found.")
         resp.message = "Recurso $request.forwardURI no encontrado."

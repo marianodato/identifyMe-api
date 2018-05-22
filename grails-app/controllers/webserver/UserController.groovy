@@ -1,6 +1,7 @@
 package webserver
 
 import grails.converters.JSON
+import webserver.exception.BadRequestException
 
 class UserController {
 
@@ -9,13 +10,16 @@ class UserController {
     def utilsService
 
     def createUser() {
+        log.info("UserController - createUser")
 
         def request = request.JSON
         log.info("Params: " + params)
         log.info("Request: " + request)
-        request.accessToken = params.accessToken
+        def parameters = [:]
+        parameters.accessToken = params.accessToken
 
-        utilsService.validateFields(request, ['accessToken', 'username', 'password', 'name', 'dni', 'gender', 'email', 'phoneNumber', 'isAdmin'])
+        utilsService.validateFields('fields', request, ['username', 'password', 'name', 'dni', 'gender', 'email', 'phoneNumber', 'isAdmin'])
+        utilsService.validateFields('params', parameters, ['accessToken'])
 
         def user = tokenService.getUser(params.accessToken)
         userService.validateAdminUser(user)
@@ -27,13 +31,91 @@ class UserController {
         render resp as JSON
     }
 
-    def getUser() {
-        log.info("Params: " + params)
-        def request = [:]
-        request.accessToken = params.accessToken
-        request.id = params.id
+    def searchUsers() {
+        log.info("UserController - searchUsers")
 
-        utilsService.validateFields(request, ['accessToken', 'id'])
+        log.info("Params: " + params)
+        def userAgent = request.getHeader("User-Agent")
+        def request = request.JSON
+        log.info("Request: " + request)
+
+        def parameters = [:]
+        parameters.accessToken = params.accessToken
+        parameters.limit = params.limit
+        parameters.offset = params.offset
+
+        if (userAgent == "NodeMCU") {
+            log.info("Is NodeMCU request")
+            utilsService.validateFields('fields', request, ['serialNumber', 'atMacAddress', 'compileDate', 'signature'])
+            utilsService.checkSignature(request)
+        } else {
+
+            utilsService.validateFields('params', parameters, ['accessToken'])
+            def user = tokenService.getUser(params.accessToken)
+            userService.validateAdminUser(user)
+        }
+
+        if (!params.offset || (params.offset as Integer) < 0) {
+            params.offset = 0
+        } else {
+            params.offset = params.offset as Integer
+        }
+
+        if (!params.limit || (params.limit as Integer) < 1 || (params.limit as Integer) > 10) {
+            params.limit = 10
+        } else {
+            params.limit = params.limit as Integer
+        }
+
+        if (params.fingerprintStatus && (params.fingerprintStatus != "unenrolled" && params.fingerprintStatus != "pending" && params.fingerprintStatus != "enrolled")) {
+            log.error("Invalid value for parameter: fingerprintStatus")
+            throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus")
+        }
+
+        def queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus)
+        log.info("QueryUsers: " + queryUsers)
+
+        def resp = [:]
+        def users = []
+
+        queryUsers.results.each {
+            def newUser = [:]
+            newUser.id = it.id
+            newUser.fingerprintId = it.fingerprintId
+            newUser.name = it.name
+            if (userAgent != "NodeMCU") {
+                newUser.username = it.username
+                newUser.dni = it.dni
+                newUser.gender = it.gender
+                newUser.email = it.email
+                newUser.phoneNumber = it.phoneNumber
+                newUser.dateCreated = it.dateCreated.format("yyyy-MM-dd HH:mm:ss")
+                newUser.fingerprintStatus = it.fingerprintStatus
+                newUser.isAdmin = it.isAdmin
+            }
+            users.add(newUser)
+        }
+
+        def paging = [:]
+        paging.total = queryUsers.total
+        paging.limit = params.limit
+        paging.offset = queryUsers.offset
+
+        resp.paging = paging
+        resp.results = users
+        response.status = 200
+        render resp as JSON
+    }
+
+    def getUser() {
+        log.info("UserController - getUser")
+
+        log.info("Params: " + params)
+        def parameters = [:]
+        parameters.accessToken = params.accessToken
+        parameters.id = params.id
+
+        utilsService.validateFields('params', parameters, ['accessToken', 'id'])
 
         def user = tokenService.getUser(params.accessToken)
 
@@ -42,6 +124,7 @@ class UserController {
         }
 
         def queryUser = userService.getUser(params.id)
+        log.info("QueryUser: " + queryUser)
         def resp = [:]
         resp.id = queryUser.id
         resp.username = queryUser.username
@@ -54,20 +137,6 @@ class UserController {
         resp.fingerprintId = queryUser.fingerprintId
         resp.fingerprintStatus = queryUser.fingerprintStatus
         resp.isAdmin = queryUser.isAdmin
-        response.status = 200
-        render resp as JSON
-    }
-
-    def getPendingUser() {
-        def request = request.JSON
-        log.info("Request: " + request)
-
-        utilsService.validateFields(request, ['serialNumber', 'atMacAddress', 'compileDate', 'signature'])
-        utilsService.checkSignature(request)
-
-        User user = userService.getPendingUser()
-        def resp = [:]
-        resp.id = user.fingerprintId
         response.status = 200
         render resp as JSON
     }

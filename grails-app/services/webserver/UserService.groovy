@@ -59,6 +59,41 @@ class UserService {
         log.info("Sign up successful!")
     }
 
+    def searchUsers(def offset, def limit, String fingerprintStatus = null) {
+        def total
+
+        if (fingerprintStatus) {
+            total = User.countByFingerprintStatus(fingerprintStatus)
+        } else {
+            total = User.count()
+        }
+
+        def offsetCount = (total / limit) as Integer
+
+        if (total % limit != 0)
+            offsetCount += 1
+
+        if (offset >= offsetCount)
+            offset = 0
+
+        def users
+
+        if (fingerprintStatus) {
+            users = User.findAll("from User as u where u.fingerprintStatus=? order by u.dateCreated desc",
+                    [fingerprintStatus], [max: limit, offset: limit * (offset)])
+        } else {
+            users = User.findAll("from User as u order by u.dateCreated desc",
+                    [max: limit, offset: limit * (offset)])
+        }
+
+        if (!users) {
+            log.error("Cannot find users: " + users)
+            throw new NotFoundException("No se pudo encontrar usuarios!")
+        }
+
+        return [results: users, offset: offset, total: total]
+    }
+
     def getUser(Long userId) {
         def user = User.findById(userId)
         log.info("User: " + user)

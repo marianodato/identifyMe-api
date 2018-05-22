@@ -15,18 +15,31 @@ class UtilsService {
         return instance.save(flush: true)
     }
 
-    def validateFields(request, def expectedFields, def nonExpectedFields = null) {
-        expectedFields.each {
-            if (request[it] == null) {
-                log.error("Invalid Paramenters: the field ${it} cannot be null")
-                throw new BadRequestException("Parámetros inválidos: el campo ${it} no puede ser null!")
+    def validateFields(def type, def map, def expectedFields, def nonExpectedFields = null) {
+        if (expectedFields) {
+            expectedFields.each {
+                if (map[it] == null) {
+                    if (type == "params") {
+                        log.error("Invalid Paramenters: the param ${it} cannot be null")
+                        throw new BadRequestException("Parámetros inválidos: el parámetro ${it} no puede ser null!")
+                    } else {
+                        log.error("Invalid Fields: the field ${it} cannot be null")
+                        throw new BadRequestException("Campos inválidos: el campo ${it} no puede ser null!")
+                    }
+                }
             }
         }
+
         if (nonExpectedFields) {
             nonExpectedFields.each {
-                if (request[it] != null) {
-                    log.error("Invalid Paramenters: the field ${it} must be null")
-                    throw new BadRequestException("Parámetros inválidos: el campo ${it} debe ser null!")
+                if (map[it] != null) {
+                    if (type == "params") {
+                        log.error("Invalid Paramenters: the param ${it} must be null")
+                        throw new BadRequestException("Parámetros inválidos: el parámetro ${it} debe ser null!")
+                    } else {
+                        log.error("Invalid Fields: the field ${it} must be null")
+                        throw new BadRequestException("Campos inválidos: el campo ${it} debe ser null!")
+                    }
                 }
             }
         }
