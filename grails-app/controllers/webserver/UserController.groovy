@@ -140,4 +140,27 @@ class UserController {
         response.status = 200
         render resp as JSON
     }
+
+    def deleteUser() {
+        log.info("UserController - deleteUser")
+
+        log.info("Params: " + params)
+        def parameters = [:]
+        parameters.accessToken = params.accessToken
+        parameters.id = params.id
+
+        utilsService.validateFields('params', parameters, ['accessToken', 'id'])
+
+        def user = tokenService.getUser(params.accessToken)
+
+        if (user.id != params.id) {
+            userService.validateAdminUser(user)
+        }
+
+        userService.deleteUser(params.id)
+
+        def resp = [:]
+        response.status = 204
+        render resp as JSON
+    }
 }

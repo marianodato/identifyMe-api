@@ -8,6 +8,7 @@ class PingController {
         log.info("PingController - index")
         def resp = [:]
         resp.ping = "pong"
+        response.status = 200
         render resp as JSON
     }
 }

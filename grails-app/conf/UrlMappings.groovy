@@ -24,7 +24,7 @@ class UrlMappings {
 
         "/users/$id"{
             controller = "user"
-            action = [GET: "getUser"] //PUT: "modifyUser", DELETE: "deleteUser"
+            action = [GET: "getUser", DELETE: "deleteUser"] //PUT: "modifyUser"
         }
 
         /*"/registration/records"{

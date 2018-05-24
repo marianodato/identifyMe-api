@@ -538,4 +538,76 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         cleanup:
         User.deleteAll(User.list())
     }
+
+    void "test deleteUser bad request"() {
+        given:
+        controller.request.method = 'DELETE'
+        when:
+        controller.deleteUser()
+        then:
+        thrown BadRequestException
+    }
+
+    void "test deleteUser cannot authenticate"() {
+        given:
+        controller.request.method = 'DELETE'
+        controller.params.accessToken = "accessToken"
+        controller.params.id = 1
+        when:
+        controller.deleteUser()
+        then:
+        thrown AuthException
+    }
+
+    void "test deleteUser forbidden access"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: false, fingerprintId: 1, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        user.dateCreated = new Date()
+        user.save(flush: true)
+        controller.request.method = 'DELETE'
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.params.id = user.id + 1
+        when:
+        controller.deleteUser()
+        then:
+        thrown ForbiddenException
+        User.count() == 1
+        cleanup:
+        User.deleteAll(User.list())
+    }
+
+    void "test deleteUser cannot find user"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: 1, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        user.dateCreated = new Date()
+        user.save(flush: true)
+        controller.request.method = 'DELETE'
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.params.id = user.id + 1
+        when:
+        controller.deleteUser()
+        then:
+        thrown NotFoundException
+        User.count() == 1
+        cleanup:
+        User.deleteAll(User.list())
+    }
+
+    void "test deleteUser ok"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: false, fingerprintId: 1, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        user.dateCreated = new Date()
+        user.save(flush: true)
+        controller.request.method = 'DELETE'
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.params.id = user.id
+        when:
+        controller.deleteUser()
+        then:
+        controller.response.status == 204
+        controller.response.json == JSON.parse("{}")
+        User.count() == 0
+        cleanup:
+        User.deleteAll(User.list())
+    }
 }

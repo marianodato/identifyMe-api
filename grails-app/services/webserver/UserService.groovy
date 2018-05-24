@@ -105,14 +105,18 @@ class UserService {
         return user
     }
 
-    def getPendingUser() {
-        def user = User.findByFingerprintStatus("pending")
+    def deleteUser(Long userId) {
+        def user = User.findById(userId)
         log.info("User: " + user)
         if (!user) {
-            log.error("Cannot find pending user")
-            throw new NotFoundException("No se pudo encontrar al usuario pendiente de carga!")
+            log.error("Cannot find userId: " + userId)
+            throw new NotFoundException("No se pudo encontrar al usuario!")
         }
-        log.info("Get successful!")
-        return user
+
+        user.delete(flush: true)
+
+        log.info("Delete successful!")
+        return
     }
+
 }
