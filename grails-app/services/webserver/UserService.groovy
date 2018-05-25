@@ -12,6 +12,7 @@ class UserService {
     def utilsService
 
     def validateAdminUser(User user) {
+        log.info("usersService - validateAdminUser")
         if (!user.isAdmin) {
             log.error("Forbidden access for user: " + user)
             throw new ForbiddenException("Acceso denegado para el usuario!")
@@ -19,6 +20,7 @@ class UserService {
     }
 
     def getFingerprintId(def idsUsed) {
+        log.info("usersService - getFingerprintId")
         def result
         for (int i = 1; i < 163; i++) {
             result = idsUsed.find { it == i }
@@ -29,7 +31,41 @@ class UserService {
         throw new InsufientStorageException("Se ha exedido el límite máximo de usuarios")
     }
 
+    def validateUserFields(def request) {
+        log.info("usersService - validateUserFields")
+        if (request.username && !request.username.matches('(?=^.{6,20}\$)^[a-zA-Z][a-zA-Z0-9]*[._-]?[a-zA-Z0-9]+\$')) {
+            log.error("Incorrect value for field: username")
+            throw new BadRequestException("Valor incorrecto para el campo username! Formato: Sólo un caracter especial (._-) permitido y no debe estar en los extremos. El primer caracter no puede ser numérico. Todos los demás caracteres permitidos son letras y números. La longitud total debe estar entre 6 y 20 caracteres")
+        }
+
+        if (request.password && !request.password.matches('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\$@\$!#%*?&._-])[A-Za-z\\d\$@\$!#%*?&._-]{8,}')) {
+            log.error("Incorrect value for field: password")
+            throw new BadRequestException("Valor incorrecto para el campo password! Formato: Mínimo 8 caracteres, al menos 1 en mayúscula, 1 en minúscula, 1 número y 1 caracter especial")
+        }
+
+        if (request.username && request.password && request.username == request.password) {
+            log.error("Username cannot be the same as password!")
+            throw new BadRequestException("El usuario no puede ser igual a la contraseña!")
+        }
+
+        if (request.gender && !request.gender.matches('^male$|^female$')) {
+            log.error("Incorrect value for field: gender")
+            throw new BadRequestException("Valor incorrecto para el campo gender! Valores aceptados: male o female")
+        }
+
+        if (request.email && !request.email.contains("@")) {
+            log.error("Incorrect value for field: email")
+            throw new BadRequestException("Valor incorrecto para el campo email! Debes ingresar un mail válido")
+        }
+
+        if (request.phoneNumber && !request.phoneNumber.matches('[\\+]\\d{2}[\\(]\\d{2}[\\)]\\d{4}[\\-]\\d{4}')) {
+            log.error("Incorrect value for field: phoneNumber")
+            throw new BadRequestException("Valor incorrecto para el campo phoneNumber! Formato: +54(11)1234-5678")
+        }
+    }
+
     def createUser(def request) {
+        log.info("usersService - createUser")
         def user = User.findByUsername(request.username.toString())
         log.info("User: " + user)
 
@@ -38,17 +74,14 @@ class UserService {
             throw new BadRequestException("Usuario ya registrado!")
         }
 
-        if (request.username == request.password) {
-            log.error("Username cannot be the same as password!")
-            throw new BadRequestException("El usuario no puede ser igual a la contraseña!")
-        }
+        validateUserFields(request)
 
-        def idsUsed = User.executeQuery('select u.fingerprintId from User u')
-        def fingerprintId = getFingerprintId(idsUsed)
         def hash = PasswordHash.createHash(request.password.toString())
 
-        User newUser = new User(username: request.username, name: request.name, dni: request.dni, gender: request.gender, email: request.email, phoneNumber: request.phoneNumber, isAdmin: request.isAdmin, fingerprintId: fingerprintId, fingerprintStatus: "unenrolled", password: hash, accessToken: null)
-        newUser.dateCreated = new Date()
+        User newUser = new User(username: request.username, name: request.name, dni: request.dni, gender: request.gender, email: request.email, phoneNumber: request.phoneNumber, isAdmin: request.isAdmin, fingerprintId: null, fingerprintStatus: "unenrolled", password: hash, accessToken: null)
+        def date = new Date()
+        newUser.dateCreated = date
+        newUser.lastUpdated = date
         if (!utilsService.saveInstance(newUser)) {
             newUser.discard()
             newUser.errors.each {
@@ -60,6 +93,7 @@ class UserService {
     }
 
     def searchUsers(def offset, def limit, String fingerprintStatus = null) {
+        log.info("usersService - searchUsers")
         def total
 
         if (fingerprintStatus) {
@@ -94,7 +128,8 @@ class UserService {
         return [results: users, offset: offset, total: total]
     }
 
-    def getUser(Long userId) {
+    def getUser(def userId) {
+        log.info("usersService - getUser")
         def user = User.findById(userId)
         log.info("User: " + user)
         if (!user) {
@@ -105,7 +140,8 @@ class UserService {
         return user
     }
 
-    def deleteUser(Long userId) {
+    def deleteUser(def userId) {
+        log.info("usersService - deleteUser")
         def user = User.findById(userId)
         log.info("User: " + user)
         if (!user) {
@@ -116,7 +152,105 @@ class UserService {
         user.delete(flush: true)
 
         log.info("Delete successful!")
-        return
+    }
+
+    def modifyUser(def request, User caller, User user, boolean isNodeMCU) {
+        log.info("usersService - modifyUser")
+        if (request.username) {
+            log.error("Cannot modify field: username")
+            throw new BadRequestException("No se puede modificar el campo: username")
+        }
+
+        validateUserFields(request)
+
+        if (request.password) {
+            if (request.password == user.username) {
+                log.error("Username cannot be the same as password!")
+                throw new BadRequestException("El usuario no puede ser igual a la contraseña!")
+            }
+            def hash = PasswordHash.createHash(request.password.toString())
+            user.password = hash
+        }
+
+        if (request.gender) {
+            user.gender = request.gender
+        }
+
+        if (request.email) {
+            user.email = request.email
+        }
+
+        if (request.phoneNumber) {
+            user.phoneNumber = request.phoneNumber
+        }
+
+        if (request.name) {
+            user.name = request.name
+        }
+
+        if (request.dni) {
+            user.dni = request.dni
+        }
+
+        if (request.isAdmin || request.fingerprintStatus) {
+            if ((caller && !caller.isAdmin) && !isNodeMCU) {
+                log.error("Cannot update fields: isAdmin and fingerprintStatus without admin privileges")
+                throw new ForbiddenException("No se puede modificar los campos: isAdmin y fingerprintStatus sin permisos de administrador")
+            }
+
+            if (request.isAdmin != null) {
+                user.isAdmin = request.isAdmin
+            }
+
+            if (request.fingerprintStatus) {
+                if (request.fingerprintStatus != "unenrolled" && request.fingerprintStatus != "pending" && request.fingerprintStatus != "enrolled") {
+                    log.error("Invalid value for parameter: fingerprintStatus")
+                    throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus")
+                } else {
+
+                    if (request.fingerprintStatus == "unenrolled") {
+                        user.fingerprintId = null
+
+                    } else if (request.fingerprintStatus == "pending") {
+
+                        def users = User.findAllByFingerprintStatus("pending")
+                        users.each {
+                            it.fingerprintStatus = "unenrolled"
+                            it.fingerprintId = null
+                            if (!utilsService.saveInstance(it)) {
+                                it.discard()
+                                it.errors.each {
+                                    log.error("Error: Error saving to User table: " + it)
+                                }
+                                throw new RuntimeException("Error saving to User table.User: " + it)
+                            }
+                        }
+                        def idsUsed = User.executeQuery('select u.fingerprintId from User u where u.fingerprintId != null')
+                        def fingerprintId = getFingerprintId(idsUsed)
+                        user.fingerprintId = fingerprintId
+
+                    } else { //enrolled
+                        if (user.fingerprintStatus != "pending") {
+                            log.error("Invalid value for parameter: fingerprintStatus")
+                            throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus")
+                        }
+                    }
+                    user.fingerprintStatus = request.fingerprintStatus
+                }
+            }
+        }
+
+        def date = new Date()
+        user.lastUpdated = date
+        if (!utilsService.saveInstance(user)) {
+            user.discard()
+            user.errors.each {
+                log.error("Error: Error saving to User table: " + it + " . User: " + user)
+            }
+            throw new RuntimeException("Error saving to User table.User: " + user)
+        }
+        log.info("Update successful!")
+        return user
     }
 
 }

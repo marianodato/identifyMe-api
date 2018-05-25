@@ -72,7 +72,7 @@ class UserController {
             throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus")
         }
 
-        def queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus)
+        Map queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus)
         log.info("QueryUsers: " + queryUsers)
 
         def resp = [:]
@@ -90,6 +90,7 @@ class UserController {
                 newUser.email = it.email
                 newUser.phoneNumber = it.phoneNumber
                 newUser.dateCreated = it.dateCreated.format("yyyy-MM-dd HH:mm:ss")
+                newUser.lastUpdated = it.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
                 newUser.fingerprintStatus = it.fingerprintStatus
                 newUser.isAdmin = it.isAdmin
             }
@@ -134,6 +135,7 @@ class UserController {
         resp.email = queryUser.email
         resp.phoneNumber = queryUser.phoneNumber
         resp.dateCreated = queryUser.dateCreated.format("yyyy-MM-dd HH:mm:ss")
+        resp.lastUpdated = queryUser.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
         resp.fingerprintId = queryUser.fingerprintId
         resp.fingerprintStatus = queryUser.fingerprintStatus
         resp.isAdmin = queryUser.isAdmin
@@ -161,6 +163,58 @@ class UserController {
 
         def resp = [:]
         response.status = 204
+        render resp as JSON
+    }
+
+    def modifyUser() {
+
+        log.info("UserController - modifyUser")
+
+        log.info("Params: " + params)
+        def parameters = [:]
+        parameters.accessToken = params.accessToken
+        parameters.id = params.id
+        def userAgent = request.getHeader("User-Agent")
+        def request = request.JSON
+        log.info("Request: " + request)
+        def isNodeMCU = false
+        def caller = null
+
+        if (userAgent == "NodeMCU") {
+            log.info("Is NodeMCU request")
+            utilsService.validateFields('params', parameters, ['id'])
+            utilsService.validateFields('fields', request, ['serialNumber', 'atMacAddress', 'compileDate', 'signature'])
+            utilsService.checkSignature(request)
+            isNodeMCU = true
+        } else {
+
+            utilsService.validateFields('params', parameters, ['accessToken', 'id'])
+            caller = tokenService.getUser(params.accessToken)
+            if (caller.id != params.id) {
+                userService.validateAdminUser(caller)
+            }
+        }
+
+        def user = userService.getUser(params.id)
+        user = userService.modifyUser(request, caller, user, isNodeMCU)
+
+        log.info("modifyUser: " + user)
+        def resp = [:]
+        resp.id = user.id
+        resp.fingerprintId = user.fingerprintId
+        resp.fingerprintStatus = user.fingerprintStatus
+        if (userAgent != "NodeMCU") {
+            resp.username = user.username
+            resp.name = user.name
+            resp.dni = user.dni
+            resp.gender = user.gender
+            resp.email = user.email
+            resp.phoneNumber = user.phoneNumber
+            resp.dateCreated = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
+            resp.lastUpdated = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+            resp.isAdmin = user.isAdmin
+        }
+        response.status = 200
         render resp as JSON
     }
 }

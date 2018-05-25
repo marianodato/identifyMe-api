@@ -13,6 +13,7 @@ class User {
     Long fingerprintId
     String fingerprintStatus
     Date dateCreated
+    Date lastUpdated
     String accessToken
     static hasMany = [registrationRecords: RegistrationRecord]
 
@@ -30,9 +31,10 @@ class User {
         email blank:false, nullable: false, unique: true, email: true
         phoneNumber blank:false, nullable: false, matches: '[\\+]\\d{2}[\\(]\\d{2}[\\)]\\d{4}[\\-]\\d{4}'
         isAdmin nullable: false
-        fingerprintId nullable: false, unique: true
+        fingerprintId nullable: true, unique: true
         fingerprintStatus blank:false, nullable: false, matches: '^unenrolled$|^pending$|^enrolled$'
         dateCreated nullable: false
+        lastUpdated nullable: false
         accessToken blank:false, nullable: true, size: 128..128, unique: true
     }
 }

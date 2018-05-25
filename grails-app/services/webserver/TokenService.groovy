@@ -10,6 +10,8 @@ class TokenService {
 
     def generateAccessToken(Long user_id) {
 
+        log.info("tokenService - generateAccessToken")
+
         def user = User.findById(user_id)
 
         log.info("User: " + user)
@@ -34,6 +36,8 @@ class TokenService {
 
     def getUser(String accessToken) {
 
+        log.info("tokenService - getUser")
+
         log.info("Access Token: " + accessToken)
 
         def user = User.findByAccessToken(accessToken)
@@ -47,6 +51,8 @@ class TokenService {
     }
 
     def deleteAccessToken(User user){
+
+        log.info("tokenService - deleteAccessToken")
 
         log.info("User: " + user)
         user.accessToken = null
