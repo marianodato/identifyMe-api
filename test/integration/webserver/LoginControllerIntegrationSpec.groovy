@@ -103,6 +103,8 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         controller.login()
         then:
         thrown RuntimeException
+        User savedUser = User.findById(user.id)
+        savedUser.accessToken == null
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -127,6 +129,8 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         then:
         controller.response.status == 201
         controller.response.json == JSON.parse("{\"accessToken\": $user.accessToken}")
+        User savedUser = User.findById(user.id)
+        savedUser.accessToken == user.accessToken
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -168,6 +172,8 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         controller.logout()
         then:
         thrown RuntimeException
+        User savedUser = User.findById(user.id)
+        savedUser.accessToken == "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -191,6 +197,8 @@ class LoginControllerIntegrationSpec extends IntegrationSpec {
         then:
         controller.response.status == 201
         controller.response.json == JSON.parse("{\"message\": \"Usuario deslogueado!\"}")
+        User savedUser = User.findById(user.id)
+        savedUser.accessToken == null
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())

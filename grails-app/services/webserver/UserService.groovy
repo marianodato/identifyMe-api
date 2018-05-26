@@ -19,13 +19,17 @@ class UserService {
         }
     }
 
-    def getFingerprintId(def idsUsed) {
+    def getFingerprintId(def idsUsed, User user, def users) {
         log.info("usersService - getFingerprintId")
         def result
         for (int i = 1; i < 163; i++) {
             result = idsUsed.find { it == i }
             if (result == null)
                 return i
+        }
+        user.discard()
+        users.each {
+            it.discard()
         }
         log.error("System surpassed limit capacity!")
         throw new InsufientStorageException("Se ha exedido el límite máximo de usuarios")
@@ -192,8 +196,9 @@ class UserService {
             user.dni = request.dni
         }
 
-        if (request.isAdmin || request.fingerprintStatus) {
+        if (request.isAdmin != null || request.fingerprintStatus) {
             if ((caller && !caller.isAdmin) && !isNodeMCU) {
+                user.discard()
                 log.error("Cannot update fields: isAdmin and fingerprintStatus without admin privileges")
                 throw new ForbiddenException("No se puede modificar los campos: isAdmin y fingerprintStatus sin permisos de administrador")
             }
@@ -204,6 +209,7 @@ class UserService {
 
             if (request.fingerprintStatus) {
                 if (request.fingerprintStatus != "unenrolled" && request.fingerprintStatus != "pending" && request.fingerprintStatus != "enrolled") {
+                    user.discard()
                     log.error("Invalid value for parameter: fingerprintStatus")
                     throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus")
                 } else {
@@ -226,11 +232,12 @@ class UserService {
                             }
                         }
                         def idsUsed = User.executeQuery('select u.fingerprintId from User u where u.fingerprintId != null')
-                        def fingerprintId = getFingerprintId(idsUsed)
+                        def fingerprintId = getFingerprintId(idsUsed, user, users)
                         user.fingerprintId = fingerprintId
 
                     } else { //enrolled
                         if (user.fingerprintStatus != "pending") {
+                            user.discard()
                             log.error("Invalid value for parameter: fingerprintStatus")
                             throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus")
                         }

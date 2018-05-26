@@ -1022,8 +1022,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         thrown RuntimeException
-        // TODO TEST TRANSACTIONAL ROLLBACK
-        // user.password == "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a"
+        User savedUser = User.findById(user.id)
+        savedUser.password == "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a"
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1053,7 +1053,10 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
         def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"female\", \"email\": \"papapa@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
-        user.password != "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a"
+        User savedUser = User.findById(user.id)
+        savedUser.password != "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a"
+        savedUser.gender == "female"
+        savedUser.email == "papapa@gmail.com"
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1089,6 +1092,10 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         def lastUpdatedParsed = user2.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
         controller.response.json == JSON.parse("{\"id\": $user2.id, \"username\": \"Papapa\", \"name\": \"Pipi Pipi\", \"dni\": 1234567892, \"gender\":\"male\", \"email\": \"papapa@gmail.com\", \"phoneNumber\": \"+54(11)1234-5677\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
         User.count() == 2
+        User savedUser = User.findById(user2.id)
+        savedUser.phoneNumber == "+54(11)1234-5677"
+        savedUser.name == "Pipi Pipi"
+        savedUser.dni == 1234567892
         cleanup:
         User.deleteAll(User.list())
         revokeMetaClassChanges(UtilsService, controller.userService.utilsService)
@@ -1117,7 +1124,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
-        user.gender == "female"
+        User savedUser = User.findById(user.id)
+        savedUser.gender == "female"
         controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\"}")
         User.count() == 1
         cleanup:
@@ -1136,10 +1144,13 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.params.id = user.id
         controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
         controller.request.JSON.isAdmin = true
+        controller.request.JSON.name = "Lala"
         when:
         controller.modifyUser()
         then:
         thrown ForbiddenException
+        User savedUser = User.findById(user.id)
+        savedUser.name == "Pepe Pepe"
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1168,7 +1179,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
-        user.isAdmin
+        User savedUser = User.findById(user.id)
+        savedUser.isAdmin
         controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\"}")
         User.count() == 1
         cleanup:
@@ -1192,8 +1204,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         thrown BadRequestException
-        // TODO TEST TRANSACTIONAL ROLLBACK
-        // user.isAdmin
+        User savedUser = User.findById(user.id)
+        savedUser.isAdmin
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1222,6 +1234,9 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
         User.count() == 1
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintStatus == "unenrolled"
         cleanup:
         User.deleteAll(User.list())
         revokeMetaClassChanges(UtilsService, controller.userService.utilsService)
@@ -1243,8 +1258,9 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         thrown BadRequestException
-        // TODO TEST TRANSACTIONAL ROLLBACK
-        // user.isAdmin
+        User savedUser = User.findById(user.id)
+        savedUser.isAdmin
+        savedUser.fingerprintStatus == "unenrolled"
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1272,6 +1288,9 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
         def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 1, \"fingerprintStatus\": \"enrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintStatus == "enrolled"
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1302,10 +1321,13 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         thrown RuntimeException
-        // TODO TEST TRANSACTIONAL ROLLBACK
-        // user.isAdmin
-        // user2.fingerprintId == 1
-        // user2.fingerprintStatus == "pending"
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintId == null
+        savedUser.fingerprintStatus == "unenrolled"
+        User savedUser2 = User.findById(user2.id)
+        savedUser2.fingerprintId == 1
+        savedUser2.fingerprintStatus == "pending"
         User.count() == 2
         cleanup:
         User.deleteAll(User.list())
@@ -1332,17 +1354,25 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.userService.utilsService.metaClass.saveInstance { def instance ->
             return instance.save(flush: true)
         }
-        controller.userService.metaClass.getFingerprintId { _ ->
+        controller.userService.metaClass.getFingerprintId { def a, User b, List<User> c ->
+            b.isAdmin = true
+            c.each {
+                it.fingerprintId = 1
+                it.fingerprintStatus = "pending"
+            }
             throw new InsufientStorageException("Se ha exedido el límite máximo de usuarios")
         }
         when:
         controller.modifyUser()
         then:
         thrown InsufientStorageException
-        // TODO TEST TRANSACTIONAL ROLLBACK
-        // user.isAdmin
-        // user2.fingerprintId == 1
-        // user2.fingerprintStatus == "pending"
+        User savedUser = User.findById(user.id)
+        savedUser.isAdmin
+        savedUser.fingerprintId == null
+        savedUser.fingerprintStatus == "unenrolled"
+        User savedUser2 = User.findById(user2.id)
+        savedUser2.fingerprintId == 1
+        savedUser2.fingerprintStatus == "pending"
         User.count() == 2
         cleanup:
         User.deleteAll(User.list())
@@ -1369,6 +1399,10 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintId == 1
+        savedUser.fingerprintStatus == "pending"
         def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
         def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 1, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
@@ -1405,8 +1439,13 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
         def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 1, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
-        user2.fingerprintStatus == "unenrolled"
-        user2.fingerprintId == null
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintId == 1
+        savedUser.fingerprintStatus == "pending"
+        User savedUser2 = User.findById(user2.id)
+        savedUser2.fingerprintId == null
+        savedUser2.fingerprintStatus == "unenrolled"
         User.count() == 2
         cleanup:
         User.deleteAll(User.list())
@@ -1440,8 +1479,13 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
         def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 2, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
-        user2.fingerprintStatus == "enrolled"
-        user2.fingerprintId == 1
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintId == 2
+        savedUser.fingerprintStatus == "pending"
+        User savedUser2 = User.findById(user2.id)
+        savedUser2.fingerprintId == 1
+        savedUser2.fingerprintStatus == "enrolled"
         User.count() == 2
         cleanup:
         User.deleteAll(User.list())
@@ -1471,6 +1515,9 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
+        User savedUser = User.findById(user.id)
+        savedUser.fingerprintId == 1
+        savedUser.fingerprintStatus == "enrolled"
         controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": 1, \"fingerprintStatus\": \"enrolled\"}")
         User.count() == 1
         cleanup:
