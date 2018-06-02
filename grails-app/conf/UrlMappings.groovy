@@ -27,10 +27,10 @@ class UrlMappings {
             action = [GET: "getUser", DELETE: "deleteUser", PUT: "modifyUser"]
         }
 
-        /*"/registration/records"{
+        "/users/registration/records"{
             controller = "registrationRecord"
-            action = [POST: "createRegistrationRecord", PUT: "modifyRecord"]
-        }*/
+            action = [POST: "createRegistrationRecord"]
+        }
 
         "500"(controller: "error", action: "handleError")
         "/**"(controller: "error", action: "notFound")

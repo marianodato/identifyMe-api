@@ -22,10 +22,10 @@ class UtilsService {
             expectedFields.each {
                 if (map[it] == null) {
                     if (type == "params") {
-                        log.error("Invalid Paramenters: the param ${it} cannot be null")
+                        log.error("Invalid Paramenters: the param ${it} cannot be null!")
                         throw new BadRequestException("Parámetros inválidos: el parámetro ${it} no puede ser null!")
                     } else {
-                        log.error("Invalid Fields: the field ${it} cannot be null")
+                        log.error("Invalid Fields: the field ${it} cannot be null!")
                         throw new BadRequestException("Campos inválidos: el campo ${it} no puede ser null!")
                     }
                 }
@@ -36,10 +36,10 @@ class UtilsService {
             nonExpectedFields.each {
                 if (map[it] != null) {
                     if (type == "params") {
-                        log.error("Invalid Paramenters: the param ${it} must be null")
+                        log.error("Invalid Paramenters: the param ${it} must be null!")
                         throw new BadRequestException("Parámetros inválidos: el parámetro ${it} debe ser null!")
                     } else {
-                        log.error("Invalid Fields: the field ${it} must be null")
+                        log.error("Invalid Fields: the field ${it} must be null!")
                         throw new BadRequestException("Campos inválidos: el campo ${it} debe ser null!")
                     }
                 }

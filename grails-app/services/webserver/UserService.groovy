@@ -32,18 +32,18 @@ class UserService {
             it.discard()
         }
         log.error("System surpassed limit capacity!")
-        throw new InsufientStorageException("Se ha exedido el límite máximo de usuarios")
+        throw new InsufientStorageException("Se ha exedido el límite máximo de usuarios!")
     }
 
     def validateUserFields(def request) {
         log.info("usersService - validateUserFields")
         if (request.username && !request.username.matches('(?=^.{6,20}\$)^[a-zA-Z][a-zA-Z0-9]*[._-]?[a-zA-Z0-9]+\$')) {
-            log.error("Incorrect value for field: username")
+            log.error("Incorrect value for field: username!")
             throw new BadRequestException("Valor incorrecto para el campo username! Formato: Sólo un caracter especial (._-) permitido y no debe estar en los extremos. El primer caracter no puede ser numérico. Todos los demás caracteres permitidos son letras y números. La longitud total debe estar entre 6 y 20 caracteres")
         }
 
         if (request.password && !request.password.matches('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\$@\$!#%*?&._-])[A-Za-z\\d\$@\$!#%*?&._-]{8,}')) {
-            log.error("Incorrect value for field: password")
+            log.error("Incorrect value for field: password!")
             throw new BadRequestException("Valor incorrecto para el campo password! Formato: Mínimo 8 caracteres, al menos 1 en mayúscula, 1 en minúscula, 1 número y 1 caracter especial")
         }
 
@@ -53,17 +53,17 @@ class UserService {
         }
 
         if (request.gender && !request.gender.matches('^male$|^female$')) {
-            log.error("Incorrect value for field: gender")
+            log.error("Incorrect value for field: gender!")
             throw new BadRequestException("Valor incorrecto para el campo gender! Valores aceptados: male o female")
         }
 
         if (request.email && !request.email.contains("@")) {
-            log.error("Incorrect value for field: email")
+            log.error("Incorrect value for field: email!")
             throw new BadRequestException("Valor incorrecto para el campo email! Debes ingresar un mail válido")
         }
 
         if (request.phoneNumber && !request.phoneNumber.matches('[\\+]\\d{2}[\\(]\\d{2}[\\)]\\d{4}[\\-]\\d{4}')) {
-            log.error("Incorrect value for field: phoneNumber")
+            log.error("Incorrect value for field: phoneNumber!")
             throw new BadRequestException("Valor incorrecto para el campo phoneNumber! Formato: +54(11)1234-5678")
         }
     }
@@ -91,7 +91,7 @@ class UserService {
             newUser.errors.each {
                 log.error("Error: Error saving to User table: " + it + " . User: " + newUser)
             }
-            throw new RuntimeException("Error saving to User table.User: " + newUser)
+            throw new RuntimeException("Error saving to User table. User: " + newUser)
         }
         log.info("Sign up successful!")
     }
@@ -144,6 +144,18 @@ class UserService {
         return user
     }
 
+    def getUserByFingerprintId(def fingerprintId) {
+        log.info("usersService - getUserByFingerprintId")
+        def user = User.findByFingerprintId(fingerprintId)
+        log.info("User: " + user)
+        if (!user) {
+            log.error("Cannot find fingerprintId: " + fingerprintId)
+            throw new NotFoundException("No se pudo encontrar al usuario!")
+        }
+        log.info("Get successful!")
+        return user
+    }
+
     def deleteUser(def userId) {
         log.info("usersService - deleteUser")
         def user = User.findById(userId)
@@ -161,8 +173,8 @@ class UserService {
     def modifyUser(def request, User caller, User user, boolean isNodeMCU) {
         log.info("usersService - modifyUser")
         if (request.username) {
-            log.error("Cannot modify field: username")
-            throw new BadRequestException("No se puede modificar el campo: username")
+            log.error("Cannot modify field: username!")
+            throw new BadRequestException("No se puede modificar el campo: username!")
         }
 
         validateUserFields(request)
@@ -199,8 +211,8 @@ class UserService {
         if (request.isAdmin != null || request.fingerprintStatus) {
             if ((caller && !caller.isAdmin) && !isNodeMCU) {
                 user.discard()
-                log.error("Cannot update fields: isAdmin and fingerprintStatus without admin privileges")
-                throw new ForbiddenException("No se puede modificar los campos: isAdmin y fingerprintStatus sin permisos de administrador")
+                log.error("Cannot update fields: isAdmin and fingerprintStatus without admin privileges!")
+                throw new ForbiddenException("No se puede modificar los campos: isAdmin y fingerprintStatus sin permisos de administrador!")
             }
 
             if (request.isAdmin != null) {
@@ -210,8 +222,8 @@ class UserService {
             if (request.fingerprintStatus) {
                 if (request.fingerprintStatus != "unenrolled" && request.fingerprintStatus != "pending" && request.fingerprintStatus != "enrolled") {
                     user.discard()
-                    log.error("Invalid value for parameter: fingerprintStatus")
-                    throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus")
+                    log.error("Invalid value for parameter: fingerprintStatus!")
+                    throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus!")
                 } else {
 
                     if (request.fingerprintStatus == "unenrolled") {
@@ -238,8 +250,8 @@ class UserService {
                     } else { //enrolled
                         if (user.fingerprintStatus != "pending") {
                             user.discard()
-                            log.error("Invalid value for parameter: fingerprintStatus")
-                            throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus")
+                            log.error("Invalid value for parameter: fingerprintStatus!")
+                            throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus!")
                         }
                     }
                     user.fingerprintStatus = request.fingerprintStatus
