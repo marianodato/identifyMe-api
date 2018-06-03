@@ -32,6 +32,11 @@ class UrlMappings {
             action = [POST: "createRegistrationRecord"]
         }
 
+        "/users/registration/records/$fingerprintId"{
+            controller = "registrationRecord"
+            action = [PUT: "modifyRegistrationRecord"]
+        }
+
         "500"(controller: "error", action: "handleError")
         "/**"(controller: "error", action: "notFound")
     }

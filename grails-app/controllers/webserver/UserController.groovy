@@ -89,8 +89,8 @@ class UserController {
                 newUser.gender = it.gender
                 newUser.email = it.email
                 newUser.phoneNumber = it.phoneNumber
-                newUser.dateCreated = it.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-                newUser.lastUpdated = it.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+                newUser.dateCreated = utilsService.formatDate(it.dateCreated)
+                newUser.lastUpdated = utilsService.formatDate(it.lastUpdated)
                 newUser.fingerprintStatus = it.fingerprintStatus
                 newUser.isAdmin = it.isAdmin
             }
@@ -134,8 +134,8 @@ class UserController {
         resp.gender = queryUser.gender
         resp.email = queryUser.email
         resp.phoneNumber = queryUser.phoneNumber
-        resp.dateCreated = queryUser.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-        resp.lastUpdated = queryUser.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+        resp.dateCreated = utilsService.formatDate(queryUser.dateCreated)
+        resp.lastUpdated = utilsService.formatDate(queryUser.lastUpdated)
         resp.fingerprintId = queryUser.fingerprintId
         resp.fingerprintStatus = queryUser.fingerprintStatus
         resp.isAdmin = queryUser.isAdmin
@@ -210,8 +210,8 @@ class UserController {
             resp.gender = user.gender
             resp.email = user.email
             resp.phoneNumber = user.phoneNumber
-            resp.dateCreated = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-            resp.lastUpdated = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+            resp.dateCreated = utilsService.formatDate(user.dateCreated)
+            resp.lastUpdated = utilsService.formatDate(user.lastUpdated)
             resp.isAdmin = user.isAdmin
         }
         response.status = 200

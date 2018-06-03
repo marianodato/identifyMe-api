@@ -7,14 +7,18 @@ import org.apache.log4j.LogManager
 import spock.lang.Shared
 import webserver.exception.*
 
+import java.text.SimpleDateFormat
+
 class UserControllerIntegrationSpec extends IntegrationSpec {
 
     @Shared
     UserController controller = new UserController()
+    SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd/MM/yyyy HH:mm:ss", new Locale("es", "AR"))
 
     void setup() {
         org.apache.log4j.BasicConfigurator.configure()
         LogManager.getRootLogger().setLevel(Level.INFO)
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Argentina/Buenos_Aires"))
     }
 
     static void revokeMetaClassChanges(Class type, def instance = null) {
@@ -472,7 +476,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.searchUsers()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
         controller.response.json == JSON.parse("{\"paging\": {\"total\": 1, \"limit\": 10, \"offset\":0}, results: [{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": true, \"lastUpdated\": \"$dateParsed\"}]}")
         User.count() == 1
         cleanup:
@@ -494,7 +498,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.searchUsers()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
         controller.response.json == JSON.parse("{\"paging\": {\"total\": 1, \"limit\": 10, \"offset\":0}, results: [{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": true, \"lastUpdated\": \"$dateParsed\"}]}")
         User.count() == 1
         cleanup:
@@ -526,7 +530,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.searchUsers()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
         controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":1}, results: [{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": true, \"lastUpdated\": \"$dateParsed\"}]}")
         User.count() == 3
         cleanup:
@@ -563,8 +567,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.searchUsers()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-        def dateParsed2 = user2.dateCreated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
+        def dateParsed2 = sdf.format(user2.dateCreated)
         controller.response.json == JSON.parse("{\"paging\": {\"total\": 4, \"limit\": 2, \"offset\":1}, results: [{\"id\": $user2.id, \"username\": \"Papapa\", \"name\": \"Papa Papa\", \"dni\": 1234567891, \"gender\":\"male\", \"email\": \"papapa@gmail.com\", \"phoneNumber\": \"+54(11)1234-5679\", \"dateCreated\": \"$dateParsed2\", \"fingerprintId\": 1, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$dateParsed2\"},{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": true, \"lastUpdated\": \"$dateParsed\"}]}")
         User.count() == 4
         cleanup:
@@ -684,7 +688,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.getUser()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$dateParsed\"}")
         User.count() == 1
         cleanup:
@@ -1050,8 +1054,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-        def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"female\", \"email\": \"papapa@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
         User savedUser = User.findById(user.id)
         savedUser.password != "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a"
@@ -1088,8 +1092,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
-        def dateParsed = user2.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-        def lastUpdatedParsed = user2.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user2.dateCreated)
+        def lastUpdatedParsed = sdf.format(user2.lastUpdated)
         controller.response.json == JSON.parse("{\"id\": $user2.id, \"username\": \"Papapa\", \"name\": \"Pipi Pipi\", \"dni\": 1234567892, \"gender\":\"male\", \"email\": \"papapa@gmail.com\", \"phoneNumber\": \"+54(11)1234-5677\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
         User.count() == 2
         User savedUser = User.findById(user2.id)
@@ -1230,8 +1234,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-        def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
         User.count() == 1
         User savedUser = User.findById(user.id)
@@ -1285,8 +1289,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-        def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 1, \"fingerprintStatus\": \"enrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
         User savedUser = User.findById(user.id)
         !savedUser.isAdmin
@@ -1403,8 +1407,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         !savedUser.isAdmin
         savedUser.fingerprintId == 1
         savedUser.fingerprintStatus == "pending"
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-        def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 1, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
         User.count() == 1
         cleanup:
@@ -1436,8 +1440,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-        def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 1, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
         User savedUser = User.findById(user.id)
         !savedUser.isAdmin
@@ -1476,8 +1480,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.modifyUser()
         then:
         controller.response.status == 200
-        def dateParsed = user.dateCreated.format("yyyy-MM-dd HH:mm:ss")
-        def lastUpdatedParsed = user.lastUpdated.format("yyyy-MM-dd HH:mm:ss")
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
         controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 2, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
         User savedUser = User.findById(user.id)
         !savedUser.isAdmin

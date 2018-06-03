@@ -4,7 +4,7 @@ class RegistrationRecord {
 
     Date entryTime
     Date departureTime
-    Date timeInSystem
+    Long secondsInSystem
 
     static belongsTo = [user: User]
 
@@ -16,6 +16,6 @@ class RegistrationRecord {
     static constraints = {
         entryTime nullable: false
         departureTime nullable: true
-        timeInSystem nullable: true
+        secondsInSystem nullable: true
     }
 }

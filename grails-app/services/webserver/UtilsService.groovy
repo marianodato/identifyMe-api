@@ -5,6 +5,8 @@ import webserver.exception.BadRequestException
 
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import java.text.SimpleDateFormat
+import java.util.concurrent.TimeUnit
 
 class UtilsService {
 
@@ -68,5 +70,16 @@ class UtilsService {
         Mac mac = Mac.getInstance("HmacSHA256")
         mac.init(signingKey)
         return mac.doFinal(value.getBytes()).encodeHex().toString()
+    }
+
+    def formatDate(def date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd/MM/yyyy HH:mm:ss", new Locale("es", "AR"))
+        sdf.setTimeZone(TimeZone.getTimeZone("America/Argentina/Buenos_Aires"))
+        return sdf.format(date)
+    }
+
+    def getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        long diffInMillies = date2.getTime() - date1.getTime()
+        return timeUnit.convert(diffInMillies, TimeUnit.MILLISECONDS)
     }
 }
