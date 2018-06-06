@@ -14,12 +14,12 @@ class UtilsService {
     def grailsApplication
 
     def saveInstance(def instance){
-        log.info("utilsService - saveInstance")
+        log.info("UtilsService - saveInstance")
         return instance.save(flush: true)
     }
 
     def validateFields(def type, def map, def expectedFields, def nonExpectedFields = null) {
-        log.info("utilsService - validateFields")
+        log.info("UtilsService - validateFields")
         if (expectedFields) {
             expectedFields.each {
                 if (map[it] == null) {
@@ -50,7 +50,7 @@ class UtilsService {
     }
 
     def checkSignature(def request) {
-        log.info("utilsService - checkSignature")
+        log.info("UtilsService - checkSignature")
         String valid = getEncryptedSignature(request)
         if (!valid.equalsIgnoreCase(request.signature.toString())) {
             log.error("Cannot authenticate user!")
@@ -59,13 +59,13 @@ class UtilsService {
     }
 
     String getEncryptedSignature(def request) {
-        log.info("utilsService - getEncryptedSignature")
+        log.info("UtilsService - getEncryptedSignature")
         String signatureKey = grailsApplication.config.arduino.signatureKey
         return encryptHmacSHA256(signatureKey, request.serialNumber.toString() + request.atMacAddress.toString() + request.compileDate.toString())
     }
 
     String encryptHmacSHA256(String key, String value) {
-        log.info("utilsService - encryptHmacSHA256")
+        log.info("UtilsService - encryptHmacSHA256")
         SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), "HmacSHA256")
         Mac mac = Mac.getInstance("HmacSHA256")
         mac.init(signingKey)

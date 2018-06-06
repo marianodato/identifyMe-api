@@ -9,7 +9,7 @@ class LoginService {
 
     def doLogin(String username, String password){
 
-        log.info("loginService - doLogin")
+        log.info("LoginService - doLogin")
 
         def user = User.findByUsername(username)
 

@@ -530,8 +530,8 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.searchUsers()
         then:
         controller.response.status == 200
-        def dateParsed = sdf.format(user.dateCreated)
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":1}, results: [{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": true, \"lastUpdated\": \"$dateParsed\"}]}")
+        def dateParsed = sdf.format(user3.dateCreated)
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":1}, results: [{\"id\": $user3.id, \"username\": \"Pipipi\", \"name\": \"Pipi Pipi\", \"dni\": 1234567892, \"gender\":\"male\", \"email\": \"pipipi@gmail.com\", \"phoneNumber\": \"+54(11)1234-5670\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$dateParsed\"}]}")
         User.count() == 3
         cleanup:
         User.deleteAll(User.list())
@@ -567,9 +567,9 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.searchUsers()
         then:
         controller.response.status == 200
-        def dateParsed = sdf.format(user.dateCreated)
-        def dateParsed2 = sdf.format(user2.dateCreated)
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 4, \"limit\": 2, \"offset\":1}, results: [{\"id\": $user2.id, \"username\": \"Papapa\", \"name\": \"Papa Papa\", \"dni\": 1234567891, \"gender\":\"male\", \"email\": \"papapa@gmail.com\", \"phoneNumber\": \"+54(11)1234-5679\", \"dateCreated\": \"$dateParsed2\", \"fingerprintId\": 1, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$dateParsed2\"},{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": true, \"lastUpdated\": \"$dateParsed\"}]}")
+        def dateParsed = sdf.format(user3.dateCreated)
+        def dateParsed2 = sdf.format(user4.dateCreated)
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 4, \"limit\": 2, \"offset\":1}, results: [{\"id\": $user3.id, \"username\": \"Pipipi\", \"name\": \"Pipi Pipi\", \"dni\": 1234567892, \"gender\":\"male\", \"email\": \"pipipi@gmail.com\", \"phoneNumber\": \"+54(11)1234-5670\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$dateParsed\"},{\"id\": $user4.id, \"username\": \"Popopo\", \"name\": \"Popo Popo\", \"dni\": 1234567893, \"gender\":\"male\", \"email\": \"popopo@gmail.com\", \"phoneNumber\": \"+54(11)1234-5671\", \"dateCreated\": \"$dateParsed2\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$dateParsed2\"}]}")
         User.count() == 4
         cleanup:
         User.deleteAll(User.list())
@@ -610,7 +610,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.searchUsers()
         then:
         controller.response.status == 200
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":0}, results: [{\"id\": $user4.id, \"name\": \"Popo Popo\", \"fingerprintId\": 3},{\"id\": $user3.id, \"name\": \"Pipi Pipi\", \"fingerprintId\": 2} ]}")
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":0}, results: [{\"id\": $user.id, \"name\": \"Pepe Pepe\", \"fingerprintId\": 1},{\"id\": $user3.id, \"name\": \"Pipi Pipi\", \"fingerprintId\": 2}]}")
         User.count() == 4
         cleanup:
         User.deleteAll(User.list())

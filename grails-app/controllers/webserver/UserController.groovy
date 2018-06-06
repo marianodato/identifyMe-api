@@ -41,8 +41,6 @@ class UserController {
 
         def parameters = [:]
         parameters.accessToken = params.accessToken
-        parameters.limit = params.limit
-        parameters.offset = params.offset
 
         if (userAgent == "NodeMCU") {
             log.info("Is NodeMCU request")

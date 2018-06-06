@@ -29,7 +29,7 @@ class UrlMappings {
 
         "/users/registration/records"{
             controller = "registrationRecord"
-            action = [POST: "createRegistrationRecord"]
+            action = [POST: "createRegistrationRecord", GET: "searchRegistrationRecords"]
         }
 
         "/users/registration/records/$fingerprintId"{

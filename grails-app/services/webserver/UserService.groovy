@@ -12,7 +12,7 @@ class UserService {
     def utilsService
 
     def validateAdminUser(User user) {
-        log.info("usersService - validateAdminUser")
+        log.info("UsersService - validateAdminUser")
         if (!user.isAdmin) {
             log.error("Forbidden access for user: " + user)
             throw new ForbiddenException("Acceso denegado para el usuario!")
@@ -20,7 +20,7 @@ class UserService {
     }
 
     def getFingerprintId(def idsUsed, User user, def users) {
-        log.info("usersService - getFingerprintId")
+        log.info("UsersService - getFingerprintId")
         def result
         for (int i = 1; i < 163; i++) {
             result = idsUsed.find { it == i }
@@ -36,7 +36,7 @@ class UserService {
     }
 
     def validateUserFields(def request) {
-        log.info("usersService - validateUserFields")
+        log.info("UsersService - validateUserFields")
         if (request.username && !request.username.matches('(?=^.{6,20}\$)^[a-zA-Z][a-zA-Z0-9]*[._-]?[a-zA-Z0-9]+\$')) {
             log.error("Incorrect value for field: username!")
             throw new BadRequestException("Valor incorrecto para el campo username! Formato: Sólo un caracter especial (._-) permitido y no debe estar en los extremos. El primer caracter no puede ser numérico. Todos los demás caracteres permitidos son letras y números. La longitud total debe estar entre 6 y 20 caracteres")
@@ -69,7 +69,7 @@ class UserService {
     }
 
     def createUser(def request) {
-        log.info("usersService - createUser")
+        log.info("UsersService - createUser")
         def user = User.findByUsername(request.username.toString())
         log.info("User: " + user)
 
@@ -97,7 +97,7 @@ class UserService {
     }
 
     def searchUsers(def offset, def limit, String fingerprintStatus = null) {
-        log.info("usersService - searchUsers")
+        log.info("UsersService - searchUsers")
         def total
 
         if (fingerprintStatus) {
@@ -117,10 +117,10 @@ class UserService {
         def users
 
         if (fingerprintStatus) {
-            users = User.findAll("from User as u where u.fingerprintStatus=? order by u.dateCreated desc",
+            users = User.findAll("from User as u where u.fingerprintStatus=? order by u.username asc",
                     [fingerprintStatus], [max: limit, offset: limit * (offset)])
         } else {
-            users = User.findAll("from User as u order by u.dateCreated desc",
+            users = User.findAll("from User as u order by u.username asc",
                     [max: limit, offset: limit * (offset)])
         }
 
@@ -133,7 +133,7 @@ class UserService {
     }
 
     def getUser(def userId) {
-        log.info("usersService - getUser")
+        log.info("UsersService - getUser")
         def user = User.findById(userId)
         log.info("User: " + user)
         if (!user) {
@@ -145,7 +145,7 @@ class UserService {
     }
 
     def getUserByFingerprintId(def fingerprintId) {
-        log.info("usersService - getUserByFingerprintId")
+        log.info("UsersService - getUserByFingerprintId")
         def user = User.findByFingerprintId(fingerprintId)
         log.info("User: " + user)
         if (!user) {
@@ -157,7 +157,7 @@ class UserService {
     }
 
     def deleteUser(def userId) {
-        log.info("usersService - deleteUser")
+        log.info("UsersService - deleteUser")
         def user = User.findById(userId)
         log.info("User: " + user)
         if (!user) {
@@ -171,7 +171,7 @@ class UserService {
     }
 
     def modifyUser(def request, User caller, User user, boolean isNodeMCU) {
-        log.info("usersService - modifyUser")
+        log.info("UsersService - modifyUser")
         if (request.username) {
             log.error("Cannot modify field: username!")
             throw new BadRequestException("No se puede modificar el campo: username!")

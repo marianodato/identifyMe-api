@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit
 class RegistrationRecordService {
 
     def utilsService
+    def userService
 
     def createRegistrationRecord(User user) {
         log.info("RegistrationRecordService - createRegistrationRecord")
@@ -59,5 +60,43 @@ class RegistrationRecordService {
         }
         log.info("RegistrationRecord modified!")
         return registrationRecord
+    }
+
+    def searchRegistrationRecords(def offset, def limit, def userId = null) {
+        log.info("RegistrationRecordsService - searchRegistrationRecords")
+        def total
+        def user
+
+        if (userId) {
+            user = userService.getUser(userId)
+            total = RegistrationRecord.countByUser(user)
+        } else {
+            total = RegistrationRecord.count()
+        }
+
+        def offsetCount = (total / limit) as Integer
+
+        if (total % limit != 0)
+            offsetCount += 1
+
+        if (offset >= offsetCount)
+            offset = 0
+
+        def registrationRecords
+
+        if (userId) {
+            registrationRecords = RegistrationRecord.findAll("from RegistrationRecord as r where r.user=? order by r.entryTime desc",
+                    [user], [max: limit, offset: limit * (offset)])
+        } else {
+            registrationRecords = RegistrationRecord.findAll("from RegistrationRecord as r order by r.entryTime desc",
+                    [max: limit, offset: limit * (offset)])
+        }
+
+        if (!registrationRecords) {
+            log.error("Cannot find registrationRecords: " + registrationRecords)
+            throw new NotFoundException("No se pudo encontrar registros!")
+        }
+
+        return [results: registrationRecords, offset: offset, total: total]
     }
 }
