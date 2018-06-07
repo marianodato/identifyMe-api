@@ -23,10 +23,21 @@ class UserController {
 
         def user = tokenService.getUser(params.accessToken)
         userService.validateAdminUser(user)
-        userService.createUser(request)
+        def newUser = userService.createUser(request)
 
         def resp = [:]
-        resp.message = "Registro exitoso!"
+        resp.id = newUser.id
+        resp.username = newUser.username
+        resp.name = newUser.name
+        resp.dni = newUser.dni
+        resp.gender = newUser.gender
+        resp.email = newUser.email
+        resp.phoneNumber = newUser.phoneNumber
+        resp.dateCreated = utilsService.formatDate(newUser.dateCreated)
+        resp.lastUpdated = utilsService.formatDate(newUser.lastUpdated)
+        resp.fingerprintId = newUser.fingerprintId
+        resp.fingerprintStatus = newUser.fingerprintStatus
+        resp.isAdmin = newUser.isAdmin
         response.status = 201
         render resp as JSON
     }
@@ -80,6 +91,7 @@ class UserController {
             def newUser = [:]
             newUser.id = it.id
             newUser.fingerprintId = it.fingerprintId
+            newUser.fingerprintStatus = it.fingerprintStatus
             newUser.name = it.name
             if (userAgent != "NodeMCU") {
                 newUser.username = it.username
@@ -89,7 +101,6 @@ class UserController {
                 newUser.phoneNumber = it.phoneNumber
                 newUser.dateCreated = utilsService.formatDate(it.dateCreated)
                 newUser.lastUpdated = utilsService.formatDate(it.lastUpdated)
-                newUser.fingerprintStatus = it.fingerprintStatus
                 newUser.isAdmin = it.isAdmin
             }
             users.add(newUser)
@@ -124,6 +135,7 @@ class UserController {
 
         def queryUser = userService.getUser(params.id)
         log.info("QueryUser: " + queryUser)
+
         def resp = [:]
         resp.id = queryUser.id
         resp.username = queryUser.username
@@ -201,9 +213,9 @@ class UserController {
         resp.id = user.id
         resp.fingerprintId = user.fingerprintId
         resp.fingerprintStatus = user.fingerprintStatus
+        resp.name = user.name
         if (userAgent != "NodeMCU") {
             resp.username = user.username
-            resp.name = user.name
             resp.dni = user.dni
             resp.gender = user.gender
             resp.email = user.email

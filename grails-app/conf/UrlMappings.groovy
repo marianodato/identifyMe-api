@@ -7,14 +7,9 @@ class UrlMappings {
             action = [GET: "index"]
         }
 
-        "/login"{
-            controller = "login"
-            action = [POST: "login"]
-        }
-
-        "/logout"{
-            controller = "login"
-            action = [POST: "logout"]
+        "/sessions"{
+            controller = "session"
+            action = [POST: "doLogin", DELETE: "doLogout"]
         }
 
         "/users"{

@@ -27,6 +27,7 @@ class RegistrationRecordService {
             throw new RuntimeException("Error saving to RegistrationRecord table. RegistrationRecord: " + newRegistrationRecord)
         }
         log.info("RegistrationRecord created!")
+        return newRegistrationRecord
     }
 
     def modifyRegistrationRecord(User user) {
@@ -97,6 +98,26 @@ class RegistrationRecordService {
             throw new NotFoundException("No se pudo encontrar registros!")
         }
 
+        log.info("RegistrationRecords found!")
         return [results: registrationRecords, offset: offset, total: total]
+    }
+
+    def deleteUserRegistrationRecords(User user) {
+        log.info("RegistrationRecordsService - deleteUserRegistrationRecords")
+
+        def registrationRecords = RegistrationRecord.findAllByUser(user)
+
+        log.info("RegistrationRecords: " + registrationRecords)
+
+        if (!registrationRecords) {
+            log.info("User does not have records to delete")
+            return
+        }
+
+        registrationRecords.each {
+            it.delete(flush: true)
+        }
+
+        log.info("RegistrationRecords deleted!")
     }
 }

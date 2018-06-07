@@ -47,6 +47,7 @@ class UtilsService {
                 }
             }
         }
+        log.info("Validations finished!")
     }
 
     def checkSignature(def request) {
@@ -56,6 +57,7 @@ class UtilsService {
             log.error("Cannot authenticate user!")
             throw new AuthException("No se pudo autenticar al usuario!")
         }
+        log.info("Check finished!")
     }
 
     String getEncryptedSignature(def request) {
@@ -73,12 +75,15 @@ class UtilsService {
     }
 
     def formatDate(def date) {
+        log.info("UtilsService - formatDate")
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd/MM/yyyy HH:mm:ss", new Locale("es", "AR"))
         sdf.setTimeZone(TimeZone.getTimeZone("America/Argentina/Buenos_Aires"))
+        log.info("Date formatted!")
         return sdf.format(date)
     }
 
     def getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
+        log.info("UtilsService - getDateDiff")
         long diffInMillies = date2.getTime() - date1.getTime()
         return timeUnit.convert(diffInMillies, TimeUnit.MILLISECONDS)
     }

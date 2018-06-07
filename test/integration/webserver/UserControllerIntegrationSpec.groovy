@@ -339,10 +339,11 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.createUser()
         then:
         controller.response.status == 201
-        controller.response.json == JSON.parse("{\"message\": \"Registro exitoso!\"}")
         User newUser = User.findByUsername("Test77")
         newUser.fingerprintId == null
         newUser.fingerprintStatus == "unenrolled"
+        def dateParsed = sdf.format(newUser.dateCreated)
+        controller.response.json == JSON.parse("{\"id\": $newUser.id, \"username\": \"Test77\", \"name\": \"Test77\", \"dni\": 123456789, \"gender\":\"male\", \"email\": \"test77@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$dateParsed\"}")
         User.count() == 3
         cleanup:
         User.deleteAll(User.list())
@@ -610,7 +611,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.searchUsers()
         then:
         controller.response.status == 200
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":0}, results: [{\"id\": $user.id, \"name\": \"Pepe Pepe\", \"fingerprintId\": 1},{\"id\": $user3.id, \"name\": \"Pipi Pipi\", \"fingerprintId\": 2}]}")
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":0}, results: [{\"id\": $user.id, \"name\": \"Pepe Pepe\", \"fingerprintId\": 1, \"fingerprintStatus\":\"pending\"},{\"id\": $user3.id, \"name\": \"Pipi Pipi\", \"fingerprintId\": 2, \"fingerprintStatus\":\"pending\"}]}")
         User.count() == 4
         cleanup:
         User.deleteAll(User.list())
@@ -771,6 +772,34 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         User.count() == 0
         cleanup:
         User.deleteAll(User.list())
+    }
+
+    void "test deleteUser ok with registries"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: false, fingerprintId: null, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        def date = new Date()
+        user.dateCreated = date
+        user.lastUpdated = date
+        user.save(flush: true)
+        RegistrationRecord registrationRecord = new RegistrationRecord(user: user, departureTime: null, secondsInSystem: null)
+        registrationRecord.entryTime = date
+        registrationRecord.save(flush: true)
+        RegistrationRecord registrationRecord2 = new RegistrationRecord(user: user, departureTime: null, secondsInSystem: null)
+        registrationRecord2.entryTime = date
+        registrationRecord2.save(flush: true)
+        controller.request.method = 'DELETE'
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.params.id = user.id
+        when:
+        controller.deleteUser()
+        then:
+        controller.response.status == 204
+        controller.response.json == JSON.parse("{}")
+        RegistrationRecord.count() == 0
+        User.count() == 0
+        cleanup:
+        User.deleteAll(User.list())
+        RegistrationRecord.deleteAll(RegistrationRecord.list())
     }
 
     void "test modifyUser bad request 1 nodemcu"() {
@@ -1130,7 +1159,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.response.status == 200
         User savedUser = User.findById(user.id)
         savedUser.gender == "female"
-        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\"}")
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"name\": \"Pepe Pepe\"}")
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1185,7 +1214,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.response.status == 200
         User savedUser = User.findById(user.id)
         savedUser.isAdmin
-        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\"}")
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"name\": \"Pepe Pepe\"}")
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1215,7 +1244,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         User.deleteAll(User.list())
     }
 
-    void "test modifyUser ok 3"() {
+    void "test modifyUser ok 3 status pending"() {
         given:
         User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: 1, fingerprintStatus: "pending", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
         def date = new Date()
@@ -1244,6 +1273,78 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         cleanup:
         User.deleteAll(User.list())
         revokeMetaClassChanges(UtilsService, controller.userService.utilsService)
+    }
+
+    void "test modifyUser ok 3 no records"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: 1, fingerprintStatus: "enrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        def date = new Date()
+        user.dateCreated = date
+        user.lastUpdated = date
+        user.save(flush: true)
+        controller.request.method = 'PUT'
+        controller.params.id = user.id
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.request.JSON.isAdmin = false
+        controller.request.JSON.fingerprintStatus = "unenrolled"
+        controller.userService.utilsService.metaClass.saveInstance { def instance ->
+            return instance.save(flush: true)
+        }
+        when:
+        controller.modifyUser()
+        then:
+        controller.response.status == 200
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
+        User.count() == 1
+        RegistrationRecord.count() == 0
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintStatus == "unenrolled"
+        cleanup:
+        User.deleteAll(User.list())
+        revokeMetaClassChanges(UtilsService, controller.userService.utilsService)
+        RegistrationRecord.deleteAll(RegistrationRecord.list())
+    }
+
+    void "test modifyUser ok 3 with records"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: 1, fingerprintStatus: "enrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        def date = new Date()
+        user.dateCreated = date
+        user.lastUpdated = date
+        user.save(flush: true)
+        RegistrationRecord registrationRecord = new RegistrationRecord(user: user, departureTime: null, secondsInSystem: null)
+        registrationRecord.entryTime = date
+        registrationRecord.save(flush: true)
+        RegistrationRecord registrationRecord2 = new RegistrationRecord(user: user, departureTime: null, secondsInSystem: null)
+        registrationRecord2.entryTime = date
+        registrationRecord2.save(flush: true)
+        controller.request.method = 'PUT'
+        controller.params.id = user.id
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.request.JSON.isAdmin = false
+        controller.request.JSON.fingerprintStatus = "unenrolled"
+        controller.userService.utilsService.metaClass.saveInstance { def instance ->
+            return instance.save(flush: true)
+        }
+        when:
+        controller.modifyUser()
+        then:
+        controller.response.status == 200
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
+        User.count() == 1
+        RegistrationRecord.count() == 0
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintStatus == "unenrolled"
+        cleanup:
+        User.deleteAll(User.list())
+        revokeMetaClassChanges(UtilsService, controller.userService.utilsService)
+        RegistrationRecord.deleteAll(RegistrationRecord.list())
     }
 
     void "test modifyUser bad request 2"() {
@@ -1416,6 +1517,78 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         revokeMetaClassChanges(UtilsService, controller.userService.utilsService)
     }
 
+    void "test modifyUser ok 5 no records"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: 1, fingerprintStatus: "enrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        def date = new Date()
+        user.dateCreated = date
+        user.lastUpdated = date
+        user.save(flush: true)
+        controller.request.method = 'PUT'
+        controller.params.id = user.id
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.request.JSON.isAdmin = false
+        controller.request.JSON.fingerprintStatus = "pending"
+        controller.userService.utilsService.metaClass.saveInstance { def instance ->
+            return instance.save(flush: true)
+        }
+        when:
+        controller.modifyUser()
+        then:
+        controller.response.status == 200
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintId == 1
+        savedUser.fingerprintStatus == "pending"
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 1, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
+        User.count() == 1
+        RegistrationRecord.count() == 0
+        cleanup:
+        User.deleteAll(User.list())
+        revokeMetaClassChanges(UtilsService, controller.userService.utilsService)
+    }
+
+    void "test modifyUser ok 5 with records"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: 1, fingerprintStatus: "enrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        def date = new Date()
+        user.dateCreated = date
+        user.lastUpdated = date
+        user.save(flush: true)
+        RegistrationRecord registrationRecord = new RegistrationRecord(user: user, departureTime: null, secondsInSystem: null)
+        registrationRecord.entryTime = date
+        registrationRecord.save(flush: true)
+        RegistrationRecord registrationRecord2 = new RegistrationRecord(user: user, departureTime: null, secondsInSystem: null)
+        registrationRecord2.entryTime = date
+        registrationRecord2.save(flush: true)
+        controller.request.method = 'PUT'
+        controller.params.id = user.id
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.request.JSON.isAdmin = false
+        controller.request.JSON.fingerprintStatus = "pending"
+        controller.userService.utilsService.metaClass.saveInstance { def instance ->
+            return instance.save(flush: true)
+        }
+        when:
+        controller.modifyUser()
+        then:
+        controller.response.status == 200
+        User savedUser = User.findById(user.id)
+        !savedUser.isAdmin
+        savedUser.fingerprintId == 1
+        savedUser.fingerprintStatus == "pending"
+        def dateParsed = sdf.format(user.dateCreated)
+        def lastUpdatedParsed = sdf.format(user.lastUpdated)
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": 1, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$lastUpdatedParsed\"}")
+        User.count() == 1
+        RegistrationRecord.count() == 0
+        cleanup:
+        User.deleteAll(User.list())
+        revokeMetaClassChanges(UtilsService, controller.userService.utilsService)
+    }
+
     void "test modifyUser ok 6"() {
         given:
         User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: null, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
@@ -1522,7 +1695,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         User savedUser = User.findById(user.id)
         savedUser.fingerprintId == 1
         savedUser.fingerprintStatus == "enrolled"
-        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": 1, \"fingerprintStatus\": \"enrolled\"}")
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": 1, \"fingerprintStatus\": \"enrolled\", \"name\": \"Pepe Pepe\"}")
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())

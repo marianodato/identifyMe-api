@@ -2,17 +2,15 @@ package webserver
 
 import webserver.exception.AuthException
 
-class LoginService {
+class SessionService {
 
     static transactional = false
     def tokenService
 
     def doLogin(String username, String password){
-
-        log.info("LoginService - doLogin")
+        log.info("SessionService - doLogin")
 
         def user = User.findByUsername(username)
-
         log.info("User: " + user)
 
         if (!user){
@@ -21,9 +19,7 @@ class LoginService {
         }
 
         if (PasswordHash.validatePassword(password,user.password)) {
-
             def accessToken = tokenService.generateAccessToken(user.id)
-
             log.info("Log in successful!")
             return accessToken
         }

@@ -2,14 +2,14 @@ package webserver
 
 import grails.converters.JSON
 
-class LoginController {
+class SessionController {
 
-    def loginService
+    def sessionService
     def tokenService
     def utilsService
 
-    def login(){
-        log.info("LoginController - login")
+    def doLogin() {
+        log.info("SessionController - doLogin")
 
         def request = request.JSON
         log.info("Params: " + params)
@@ -20,7 +20,7 @@ class LoginController {
         utilsService.validateFields('fields', request, ['username', 'password'])
         utilsService.validateFields('params', parameters, null, ['accessToken'])
 
-        def accessToken = loginService.doLogin(request.username, request.password)
+        def accessToken = sessionService.doLogin(request.username, request.password)
         log.info("AccessToken: " + accessToken)
         def resp = [:]
         resp.accessToken = accessToken
@@ -28,8 +28,8 @@ class LoginController {
         render resp as JSON
     }
 
-    def logout(){
-        log.info("LoginController - logout")
+    def doLogout() {
+        log.info("SessionController - doLogout")
 
         log.info("Params: " + params)
         def parameters = [:]
@@ -41,8 +41,7 @@ class LoginController {
         tokenService.deleteAccessToken(user)
 
         def resp = [:]
-        resp.message = "Usuario deslogueado!"
-        response.status = 201
+        response.status = 204
         render resp as JSON
     }
 }

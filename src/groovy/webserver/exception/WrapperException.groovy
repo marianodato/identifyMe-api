@@ -19,10 +19,6 @@ class WrapperException extends RuntimeException {
         this.exceptionCause = cause
     }
 
-    def WrapperException(message){
-        super(message)
-    }
-
     def WrapperException() {
         super("internal_error")
     }

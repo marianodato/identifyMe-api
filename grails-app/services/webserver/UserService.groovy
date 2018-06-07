@@ -10,6 +10,7 @@ import webserver.exception.NotFoundException
 class UserService {
 
     def utilsService
+    def registrationRecordService
 
     def validateAdminUser(User user) {
         log.info("UsersService - validateAdminUser")
@@ -17,6 +18,7 @@ class UserService {
             log.error("Forbidden access for user: " + user)
             throw new ForbiddenException("Acceso denegado para el usuario!")
         }
+        log.info("Validation finished!")
     }
 
     def getFingerprintId(def idsUsed, User user, def users) {
@@ -66,6 +68,7 @@ class UserService {
             log.error("Incorrect value for field: phoneNumber!")
             throw new BadRequestException("Valor incorrecto para el campo phoneNumber! Formato: +54(11)1234-5678")
         }
+        log.info("Validations finished!")
     }
 
     def createUser(def request) {
@@ -93,7 +96,8 @@ class UserService {
             }
             throw new RuntimeException("Error saving to User table. User: " + newUser)
         }
-        log.info("Sign up successful!")
+        log.info("User created!")
+        return newUser
     }
 
     def searchUsers(def offset, def limit, String fingerprintStatus = null) {
@@ -129,6 +133,7 @@ class UserService {
             throw new NotFoundException("No se pudo encontrar usuarios!")
         }
 
+        log.info("Users found!")
         return [results: users, offset: offset, total: total]
     }
 
@@ -140,7 +145,7 @@ class UserService {
             log.error("Cannot find userId: " + userId)
             throw new NotFoundException("No se pudo encontrar al usuario!")
         }
-        log.info("Get successful!")
+        log.info("User found!")
         return user
     }
 
@@ -152,7 +157,7 @@ class UserService {
             log.error("Cannot find fingerprintId: " + fingerprintId)
             throw new NotFoundException("No se pudo encontrar al usuario!")
         }
-        log.info("Get successful!")
+        log.info("User found!")
         return user
     }
 
@@ -165,9 +170,10 @@ class UserService {
             throw new NotFoundException("No se pudo encontrar al usuario!")
         }
 
+        registrationRecordService.deleteUserRegistrationRecords(user)
         user.delete(flush: true)
 
-        log.info("Delete successful!")
+        log.info("User deleted!")
     }
 
     def modifyUser(def request, User caller, User user, boolean isNodeMCU) {
@@ -229,7 +235,15 @@ class UserService {
                     if (request.fingerprintStatus == "unenrolled") {
                         user.fingerprintId = null
 
+                        if (user.fingerprintStatus == "enrolled") {
+                            registrationRecordService.deleteUserRegistrationRecords(user)
+                        }
+
                     } else if (request.fingerprintStatus == "pending") {
+
+                        if (user.fingerprintStatus == "enrolled") {
+                            registrationRecordService.deleteUserRegistrationRecords(user)
+                        }
 
                         def users = User.findAllByFingerprintStatus("pending")
                         users.each {
@@ -244,6 +258,9 @@ class UserService {
                             }
                         }
                         def idsUsed = User.executeQuery('select u.fingerprintId from User u where u.fingerprintId != null')
+                        if (user.fingerprintStatus == "enrolled") {
+                            idsUsed.removeElement(user.fingerprintId)
+                        }
                         def fingerprintId = getFingerprintId(idsUsed, user, users)
                         user.fingerprintId = fingerprintId
 
@@ -268,8 +285,7 @@ class UserService {
             }
             throw new RuntimeException("Error saving to User table.User: " + user)
         }
-        log.info("Update successful!")
+        log.info("User modified!")
         return user
     }
-
 }
