@@ -34,7 +34,7 @@ environments {
     }
     production {
         dataSource {
-            dbCreate = "update"
+            dbCreate = "create-drop"
             URI jdbUri = new URI(System.getenv("JAWSDB_URL"))
             driverClassName = "com.mysql.jdbc.Driver"
             username = jdbUri.getUserInfo().split(":")[0]
