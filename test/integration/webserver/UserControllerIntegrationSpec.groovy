@@ -611,7 +611,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.searchUsers()
         then:
         controller.response.status == 200
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":0}, results: [{\"id\": $user.id, \"name\": \"Pepe Pepe\", \"fingerprintId\": 1, \"fingerprintStatus\":\"pending\"},{\"id\": $user3.id, \"name\": \"Pipi Pipi\", \"fingerprintId\": 2, \"fingerprintStatus\":\"pending\"}]}")
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":0}, results: [{\"id\": $user.id, \"username\": \"Pepepe\", \"fingerprintId\": 1, \"fingerprintStatus\":\"pending\"},{\"id\": $user3.id, \"username\": \"Pipipi\", \"fingerprintId\": 2, \"fingerprintStatus\":\"pending\"}]}")
         User.count() == 4
         cleanup:
         User.deleteAll(User.list())
@@ -1159,7 +1159,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.response.status == 200
         User savedUser = User.findById(user.id)
         savedUser.gender == "female"
-        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"name\": \"Pepe Pepe\"}")
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"username\": \"Pepepe\"}")
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1214,7 +1214,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         controller.response.status == 200
         User savedUser = User.findById(user.id)
         savedUser.isAdmin
-        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"name\": \"Pepe Pepe\"}")
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"username\": \"Pepepe\"}")
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())
@@ -1695,7 +1695,7 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         User savedUser = User.findById(user.id)
         savedUser.fingerprintId == 1
         savedUser.fingerprintStatus == "enrolled"
-        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": 1, \"fingerprintStatus\": \"enrolled\", \"name\": \"Pepe Pepe\"}")
+        controller.response.json == JSON.parse("{\"id\": $user.id, \"fingerprintId\": 1, \"fingerprintStatus\": \"enrolled\", \"username\": \"Pepepe\"}")
         User.count() == 1
         cleanup:
         User.deleteAll(User.list())

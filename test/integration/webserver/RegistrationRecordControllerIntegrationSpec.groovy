@@ -153,7 +153,7 @@ class RegistrationRecordControllerIntegrationSpec extends IntegrationSpec {
         controller.response.status == 201
         def savedRegistrationRecord = RegistrationRecord.findByUser(user)
         def entryTimeParsed = sdf.format(savedRegistrationRecord.entryTime)
-        controller.response.json == JSON.parse("{\"id\": $registrationRecord.id, \"userId\": $user.id,\"userName\": \"$user.name\", \"entryTime\": \"$entryTimeParsed\", \"departureTime\":null, \"secondsInSystem\": null}")
+        controller.response.json == JSON.parse("{\"id\": $registrationRecord.id, \"userId\": $user.id,\"userUsername\": \"$user.username\", \"entryTime\": \"$entryTimeParsed\", \"departureTime\":null, \"secondsInSystem\": null}")
         cleanup:
         User.deleteAll(User.list())
         RegistrationRecord.deleteAll(RegistrationRecord.list())
@@ -426,7 +426,7 @@ class RegistrationRecordControllerIntegrationSpec extends IntegrationSpec {
         savedRegistrationRecord.secondsInSystem >= 3
         def entryTimeParsed = sdf.format(savedRegistrationRecord.entryTime)
         def departureTimeParsed = sdf.format(savedRegistrationRecord.departureTime)
-        controller.response.json == JSON.parse("{\"id\": $registrationRecord.id, \"userId\": $user.id,\"userName\": \"$user.name\", \"entryTime\": \"$entryTimeParsed\", \"departureTime\":\"$departureTimeParsed\", \"secondsInSystem\": $savedRegistrationRecord.secondsInSystem}")
+        controller.response.json == JSON.parse("{\"id\": $registrationRecord.id, \"userId\": $user.id,\"userUsername\": \"$user.username\", \"entryTime\": \"$entryTimeParsed\", \"departureTime\":\"$departureTimeParsed\", \"secondsInSystem\": $savedRegistrationRecord.secondsInSystem}")
         User.count() == 1
         RegistrationRecord.count() == 1
         cleanup:
@@ -557,7 +557,7 @@ class RegistrationRecordControllerIntegrationSpec extends IntegrationSpec {
         then:
         controller.response.status == 200
         def dateParsed = sdf.format(user.dateCreated)
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 1, \"limit\": 10, \"offset\":0}, results: [{\"id\": $registrationRecord.id, \"userName\": \"$user.name\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId,\"userFingerprintStatus\": \"$user.fingerprintStatus\", \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null}]}")
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 1, \"limit\": 10, \"offset\":0}, results: [{\"id\": $registrationRecord.id, \"userUsername\": \"$user.username\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId,\"userFingerprintStatus\": \"$user.fingerprintStatus\", \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null}]}")
         User.count() == 1
         RegistrationRecord.count() == 1
         cleanup:
@@ -584,7 +584,7 @@ class RegistrationRecordControllerIntegrationSpec extends IntegrationSpec {
         then:
         controller.response.status == 200
         def dateParsed = sdf.format(user.dateCreated)
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 1, \"limit\": 10, \"offset\":0}, results: [{\"id\": $registrationRecord.id, \"userName\": \"$user.name\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 1, \"limit\": 10, \"offset\":0}, results: [{\"id\": $registrationRecord.id, \"userUsername\": \"$user.username\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
         User.count() == 1
         RegistrationRecord.count() == 1
         cleanup:
@@ -629,7 +629,7 @@ class RegistrationRecordControllerIntegrationSpec extends IntegrationSpec {
         then:
         controller.response.status == 200
         def dateParsed = sdf.format(user.dateCreated)
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":1}, results: [{\"id\": $registrationRecord.id, \"userName\": \"$user.name\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":1}, results: [{\"id\": $registrationRecord.id, \"userUsername\": \"$user.username\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
         User.count() == 3
         RegistrationRecord.count() == 3
         cleanup:
@@ -684,7 +684,7 @@ class RegistrationRecordControllerIntegrationSpec extends IntegrationSpec {
         controller.response.status == 200
         def dateParsed = sdf.format(user.dateCreated)
         def dateParsed2 = sdf.format(user2.dateCreated)
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 4, \"limit\": 2, \"offset\":1}, results: [{\"id\": $registrationRecord2.id, \"userName\": \"$user2.name\", \"userId\": $user2.id, \"userFingerprintId\": $user2.fingerprintId, \"entryTime\":\"$dateParsed2\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user2.fingerprintStatus\"}, {\"id\": $registrationRecord.id, \"userName\": \"$user.name\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 4, \"limit\": 2, \"offset\":1}, results: [{\"id\": $registrationRecord2.id, \"userUsername\": \"$user2.username\", \"userId\": $user2.id, \"userFingerprintId\": $user2.fingerprintId, \"entryTime\":\"$dateParsed2\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user2.fingerprintStatus\"}, {\"id\": $registrationRecord.id, \"userUsername\": \"$user.username\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
         User.count() == 4
         RegistrationRecord.count() == 4
         cleanup:
@@ -732,7 +732,7 @@ class RegistrationRecordControllerIntegrationSpec extends IntegrationSpec {
         controller.response.status == 200
         def dateParsed2 = sdf.format(date2)
         def dateParsed3 = sdf.format(date3)
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":0}, results: [{\"id\": $registrationRecord3.id, \"userName\": \"$user.name\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed3\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}, {\"id\": $registrationRecord2.id, \"userName\": \"$user.name\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed2\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 3, \"limit\": 2, \"offset\":0}, results: [{\"id\": $registrationRecord3.id, \"userUsername\": \"$user.username\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed3\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}, {\"id\": $registrationRecord2.id, \"userUsername\": \"$user.username\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed2\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
         User.count() == 2
         RegistrationRecord.count() == 4
         cleanup:
@@ -775,7 +775,7 @@ class RegistrationRecordControllerIntegrationSpec extends IntegrationSpec {
         controller.response.status == 200
         def dateParsed = sdf.format(date)
         def dateParsed2 = sdf.format(date2)
-        controller.response.json == JSON.parse("{\"paging\": {\"total\": 2, \"limit\": 3, \"offset\":0}, results: [{\"id\": $registrationRecord2.id, \"userName\": \"$user.name\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed2\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}, {\"id\": $registrationRecord.id, \"userName\": \"$user.name\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 2, \"limit\": 3, \"offset\":0}, results: [{\"id\": $registrationRecord2.id, \"userUsername\": \"$user.username\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed2\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}, {\"id\": $registrationRecord.id, \"userUsername\": \"$user.username\", \"userId\": $user.id, \"userFingerprintId\": $user.fingerprintId, \"entryTime\":\"$dateParsed\", \"departureTime\": null, \"secondsInSystem\": null, \"userFingerprintStatus\": \"$user.fingerprintStatus\"}]}")
         User.count() == 2
         RegistrationRecord.count() == 3
         cleanup:

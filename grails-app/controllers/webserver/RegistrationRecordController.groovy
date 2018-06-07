@@ -35,7 +35,7 @@ class RegistrationRecordController {
         resp.departureTime = null
         resp.secondsInSystem = newRegistrationRecord.secondsInSystem
         resp.userId = newRegistrationRecord.user.id
-        resp.userName = newRegistrationRecord.user.name
+        resp.userUsername = newRegistrationRecord.user.username
         response.status = 201
         render resp as JSON
     }
@@ -70,7 +70,7 @@ class RegistrationRecordController {
         resp.departureTime = utilsService.formatDate(registrationRecord.departureTime)
         resp.secondsInSystem = registrationRecord.secondsInSystem
         resp.userId = registrationRecord.user.id
-        resp.userName = registrationRecord.user.name
+        resp.userUsername = registrationRecord.user.username
         response.status = 200
         render resp as JSON
     }
@@ -122,7 +122,7 @@ class RegistrationRecordController {
             newRegistrationRecord.userId = it.user.id
             newRegistrationRecord.userFingerprintId = it.user.fingerprintId
             newRegistrationRecord.userFingerprintStatus = it.user.fingerprintStatus
-            newRegistrationRecord.userName = it.user.name
+            newRegistrationRecord.userUsername = it.user.username
             registrationRecords.add(newRegistrationRecord)
         }
 

@@ -92,9 +92,9 @@ class UserController {
             newUser.id = it.id
             newUser.fingerprintId = it.fingerprintId
             newUser.fingerprintStatus = it.fingerprintStatus
-            newUser.name = it.name
+            newUser.username = it.username
             if (userAgent != "NodeMCU") {
-                newUser.username = it.username
+                newUser.name = it.name
                 newUser.dni = it.dni
                 newUser.gender = it.gender
                 newUser.email = it.email
@@ -213,9 +213,9 @@ class UserController {
         resp.id = user.id
         resp.fingerprintId = user.fingerprintId
         resp.fingerprintStatus = user.fingerprintStatus
-        resp.name = user.name
+        resp.username = user.username
         if (userAgent != "NodeMCU") {
-            resp.username = user.username
+            resp.name = user.name
             resp.dni = user.dni
             resp.gender = user.gender
             resp.email = user.email
