@@ -41,6 +41,6 @@ class ErrorControllerSpec extends Specification {
 
         then:
         response.status == 500
-        controller.response.json == JSON.parse("{\"cause\":[], \"message\":\"Ups! Algo salio mal...\", \"error\":\"internal_error\", \"status\":500}")
+        controller.response.json == JSON.parse("{\"cause\":[], \"message\":\"Ups! Algo salió mal...\", \"error\":\"internal_error\", \"status\":500}")
     }
 }

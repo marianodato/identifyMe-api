@@ -44,19 +44,19 @@ class UserService {
             throw new BadRequestException("Valor incorrecto para el campo username! Formato: Sólo un caracter especial (._-) permitido y no debe estar en los extremos. El primer caracter no puede ser numérico. Todos los demás caracteres permitidos son letras y números. La longitud total debe estar entre 6 y 20 caracteres")
         }
 
-        if (request.password && !request.password.matches('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\$@\$!#%*?&._-])[A-Za-z\\d\$@\$!#%*?&._-]{8,}')) {
+        if (request.password && !request.password.matches('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\$@!#%*?&._-])[A-Za-z\\d\$@!#%*?&._-]{8,}')) {
             log.error("Incorrect value for field: password!")
-            throw new BadRequestException("Valor incorrecto para el campo password! Formato: Mínimo 8 caracteres, al menos 1 en mayúscula, 1 en minúscula, 1 número y 1 caracter especial")
+            throw new BadRequestException("Valor incorrecto para el campo clave! Formato: Mínimo 8 caracteres, al menos 1 en mayúscula, 1 en minúscula, 1 número y 1 caracter especial")
         }
 
         if (request.username && request.password && request.username == request.password) {
             log.error("Username cannot be the same as password!")
-            throw new BadRequestException("El usuario no puede ser igual a la contraseña!")
+            throw new BadRequestException("El usuario no puede ser igual a la clave!")
         }
 
         if (request.gender && !request.gender.matches('^male$|^female$')) {
             log.error("Incorrect value for field: gender!")
-            throw new BadRequestException("Valor incorrecto para el campo gender! Valores aceptados: male o female")
+            throw new BadRequestException("Valor incorrecto para el campo género! Valores aceptados: male o female")
         }
 
         if (request.email && !request.email.contains("@")) {
@@ -66,7 +66,7 @@ class UserService {
 
         if (request.phoneNumber && !request.phoneNumber.matches('[\\+]\\d{2}[\\(]\\d{2}[\\)]\\d{4}[\\-]\\d{4}')) {
             log.error("Incorrect value for field: phoneNumber!")
-            throw new BadRequestException("Valor incorrecto para el campo phoneNumber! Formato: +54(11)1234-5678")
+            throw new BadRequestException("Valor incorrecto para el campo teléfono! Formato: +54(11)1234-5678")
         }
         log.info("Validations finished!")
     }
@@ -180,7 +180,7 @@ class UserService {
         log.info("UsersService - modifyUser")
         if (request.username) {
             log.error("Cannot modify field: username!")
-            throw new BadRequestException("No se puede modificar el campo: username!")
+            throw new BadRequestException("No se puede modificar el campo: usuario!")
         }
 
         validateUserFields(request)
@@ -188,7 +188,7 @@ class UserService {
         if (request.password) {
             if (request.password == user.username) {
                 log.error("Username cannot be the same as password!")
-                throw new BadRequestException("El usuario no puede ser igual a la contraseña!")
+                throw new BadRequestException("El usuario no puede ser igual a la clave!")
             }
             def hash = PasswordHash.createHash(request.password.toString())
             user.password = hash
@@ -218,7 +218,7 @@ class UserService {
             if ((caller && !caller.isAdmin) && !isNodeMCU) {
                 user.discard()
                 log.error("Cannot update fields: isAdmin and fingerprintStatus without admin privileges!")
-                throw new ForbiddenException("No se puede modificar los campos: isAdmin y fingerprintStatus sin permisos de administrador!")
+                throw new ForbiddenException("No se puede modificar los campos: admin y estado de huella sin permisos de administrador!")
             }
 
             if (request.isAdmin != null) {
@@ -229,7 +229,7 @@ class UserService {
                 if (request.fingerprintStatus != "unenrolled" && request.fingerprintStatus != "pending" && request.fingerprintStatus != "enrolled") {
                     user.discard()
                     log.error("Invalid value for parameter: fingerprintStatus!")
-                    throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus!")
+                    throw new BadRequestException("Valor inválido para el parámetro: estado de huella!")
                 } else {
 
                     if (request.fingerprintStatus == "unenrolled") {
@@ -268,7 +268,7 @@ class UserService {
                         if (user.fingerprintStatus != "pending") {
                             user.discard()
                             log.error("Invalid value for parameter: fingerprintStatus!")
-                            throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus!")
+                            throw new BadRequestException("Valor inválido para el parámetro: estado de huella!")
                         }
                     }
                     user.fingerprintStatus = request.fingerprintStatus

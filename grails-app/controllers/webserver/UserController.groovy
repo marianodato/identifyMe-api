@@ -78,7 +78,7 @@ class UserController {
 
         if (params.fingerprintStatus && (params.fingerprintStatus != "unenrolled" && params.fingerprintStatus != "pending" && params.fingerprintStatus != "enrolled")) {
             log.error("Invalid value for parameter: fingerprintStatus!")
-            throw new BadRequestException("Valor inválido para el parámetro: fingerprintStatus!")
+            throw new BadRequestException("Valor inválido para el parámetro: estado de huella!")
         }
 
         Map queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus)

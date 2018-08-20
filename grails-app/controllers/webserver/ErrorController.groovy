@@ -12,7 +12,7 @@ class ErrorController {
         try{
             def exception = request.exception
             response.status = 500
-            resp.message = "Ups! Algo salio mal..."
+            resp.message = "Ups! Algo salió mal..."
             resp.error = "internal_error"
             resp.status = 500
             resp.cause = []
