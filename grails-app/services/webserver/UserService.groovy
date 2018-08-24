@@ -265,7 +265,7 @@ class UserService {
                         user.fingerprintId = fingerprintId
 
                     } else { //enrolled
-                        if (user.fingerprintStatus != "pending") {
+                        if (user.fingerprintStatus == "unenrolled") {
                             user.discard()
                             log.error("Invalid value for parameter: fingerprintStatus!")
                             throw new BadRequestException("Valor inválido para el parámetro: estado de huella!")
