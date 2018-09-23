@@ -76,12 +76,26 @@ class UserController {
             params.limit = params.limit as Integer
         }
 
+        if (params.order && (params.order != "asc" && params.order != "desc")) {
+            log.error("Invalid value for parameter: order!")
+            throw new BadRequestException("Valor inválido para el parámetro: orden!")
+        } else if (!params.order) {
+            params.order = "asc"
+        }
+
+        if (params.sortBy && (params.sortBy != "id" && params.sortBy != "username" && params.sortBy != "name" && params.sortBy != "fingerprintId" && params.sortBy != "fingerprintStatus" && params.sortBy != "dni" && params.sortBy != "gender" && params.sortBy != "phoneNumber" && params.sortBy != "isAdmin" && params.sortBy != "dateCreated" && params.sortBy != "lastUpdated")) {
+            log.error("Invalid value for parameter: sortBy!")
+            throw new BadRequestException("Valor inválido para el parámetro: ordenar por!")
+        } else if (!params.sortBy) {
+            params.sortBy = "username"
+        }
+
         if (params.fingerprintStatus && (params.fingerprintStatus != "unenrolled" && params.fingerprintStatus != "pending" && params.fingerprintStatus != "enrolled")) {
             log.error("Invalid value for parameter: fingerprintStatus!")
             throw new BadRequestException("Valor inválido para el parámetro: estado de huella!")
         }
 
-        Map queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus)
+        Map queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus, params.sortBy, params.order)
         log.info("QueryUsers: " + queryUsers)
 
         def resp = [:]
