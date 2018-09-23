@@ -83,7 +83,7 @@ class UserController {
             params.order = "asc"
         }
 
-        if (params.sortBy && (params.sortBy != "id" && params.sortBy != "username" && params.sortBy != "name" && params.sortBy != "fingerprintId" && params.sortBy != "fingerprintStatus" && params.sortBy != "dni" && params.sortBy != "gender" && params.sortBy != "phoneNumber" && params.sortBy != "isAdmin" && params.sortBy != "dateCreated" && params.sortBy != "lastUpdated")) {
+        if (params.sortBy && (params.sortBy != "id" && params.sortBy != "username" && params.sortBy != "name" && params.sortBy != "fingerprintId" && params.sortBy != "fingerprintStatus" && params.sortBy != "dni" && params.sortBy != "gender" && params.sortBy != "email" && params.sortBy != "phoneNumber" && params.sortBy != "isAdmin" && params.sortBy != "dateCreated" && params.sortBy != "lastUpdated")) {
             log.error("Invalid value for parameter: sortBy!")
             throw new BadRequestException("Valor inválido para el parámetro: ordenar por!")
         } else if (!params.sortBy) {
