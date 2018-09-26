@@ -100,12 +100,15 @@ class UserService {
         return newUser
     }
 
-    def searchUsers(def offset, def limit, String fingerprintStatus, String sortBy, String filterOrder) {
+    def searchUsers(
+            def offset, def limit, String fingerprintStatus, String sortBy, String filterOrder, String username) {
         log.info("UsersService - searchUsers")
         def total
 
         if (fingerprintStatus) {
             total = User.countByFingerprintStatus(fingerprintStatus)
+        } else if (username) {
+            total = User.countByUsernameIlike("%" + username + "%")
         } else {
             total = User.count()
         }
@@ -124,6 +127,9 @@ class UserService {
         users = criteria.list(max: limit, offset: limit * (offset)) {
             if (fingerprintStatus) {
                 eq("fingerprintStatus", fingerprintStatus)
+            }
+            if (username) {
+                ilike("username", "%" + username + "%")
             }
             order(sortBy, filterOrder)
         }

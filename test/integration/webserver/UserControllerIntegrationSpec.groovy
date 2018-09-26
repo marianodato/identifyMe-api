@@ -692,6 +692,85 @@ class UserControllerIntegrationSpec extends IntegrationSpec {
         User.deleteAll(User.list())
     }
 
+    void "test searchUser by username not found"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: null, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        def date = new Date()
+        user.dateCreated = date
+        user.lastUpdated = date
+        user.save(flush: true)
+        User user2 = new User(username: "Papapa", name: "Papa Papa", dni: 1234567891, gender: "male", email: "papapa@gmail.com", phoneNumber: "+54(11)1234-5679", isAdmin: false, fingerprintId: 1, fingerprintStatus: "pending", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a")
+        def date2 = new Date()
+        user2.dateCreated = date2
+        user2.lastUpdated = date2
+        user2.save(flush: true)
+        User user3 = new User(username: "Pipipi", name: "Pipi Pipi", dni: 1234567892, gender: "male", email: "pipipi@gmail.com", phoneNumber: "+54(11)1234-5670", isAdmin: false, fingerprintId: null, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a")
+        def date3 = new Date()
+        user3.dateCreated = date3
+        user3.lastUpdated = date3
+        user3.save(flush: true)
+        User user4 = new User(username: "Popopo", name: "Popo Popo", dni: 1234567893, gender: "male", email: "popopo@gmail.com", phoneNumber: "+54(11)1234-5671", isAdmin: false, fingerprintId: null, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a")
+        def date4 = new Date()
+        user4.dateCreated = date4
+        user4.lastUpdated = date4
+        user4.save(flush: true)
+        controller.request.method = 'GET'
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.params.offset = 1
+        controller.params.limit = 2
+        controller.params.order = "desc"
+        controller.params.username = "Test"
+        when:
+        controller.searchUsers()
+        then:
+        thrown NotFoundException
+        User.count() == 4
+        cleanup:
+        User.deleteAll(User.list())
+    }
+
+    void "test searchUser by username ok"() {
+        given:
+        User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: null, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")
+        def date = new Date()
+        user.dateCreated = date
+        user.lastUpdated = date
+        user.save(flush: true)
+        User user2 = new User(username: "Papapepepepa", name: "Papa Papa", dni: 1234567891, gender: "male", email: "papapa@gmail.com", phoneNumber: "+54(11)1234-5679", isAdmin: false, fingerprintId: 1, fingerprintStatus: "pending", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a")
+        def date2 = new Date()
+        user2.dateCreated = date2
+        user2.lastUpdated = date2
+        user2.save(flush: true)
+        User user3 = new User(username: "Pipipi", name: "Pipi Pipi", dni: 1234567892, gender: "male", email: "pipipi@gmail.com", phoneNumber: "+54(11)1234-5670", isAdmin: false, fingerprintId: null, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a")
+        def date3 = new Date()
+        user3.dateCreated = date3
+        user3.lastUpdated = date3
+        user3.save(flush: true)
+        User user4 = new User(username: "Popopo", name: "Popo Popo", dni: 1234567893, gender: "male", email: "popopo@gmail.com", phoneNumber: "+54(11)1234-5671", isAdmin: false, fingerprintId: null, fingerprintStatus: "unenrolled", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a")
+        def date4 = new Date()
+        user4.dateCreated = date4
+        user4.lastUpdated = date4
+        user4.save(flush: true)
+        controller.request.method = 'GET'
+        controller.params.accessToken = "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4"
+        controller.params.offset = 0
+        controller.params.limit = 2
+        controller.params.order = "desc"
+        controller.params.username = "pepe"
+        controller.params.fingerprintStatus = "unenrolled"
+        when:
+        controller.searchUsers()
+        then:
+        controller.response.status == 200
+        def dateParsed = sdf.format(user.dateCreated)
+        def dateParsed2 = sdf.format(user2.dateCreated)
+        controller.response.json == JSON.parse("{\"paging\": {\"total\": 2, \"limit\": 2, \"offset\":0}, results: [{\"id\": $user.id, \"username\": \"Pepepe\", \"name\": \"Pepe Pepe\", \"dni\": 1234567890, \"gender\":\"male\", \"email\": \"pepepe@gmail.com\", \"phoneNumber\": \"+54(11)1234-5678\", \"dateCreated\": \"$dateParsed\", \"fingerprintId\": null, \"fingerprintStatus\": \"unenrolled\", \"isAdmin\": true, \"lastUpdated\": \"$dateParsed\"},{\"id\": $user2.id, \"username\": \"Papapepepepa\", \"name\": \"Papa Papa\", \"dni\": 1234567891, \"gender\":\"male\", \"email\": \"papapa@gmail.com\", \"phoneNumber\": \"+54(11)1234-5679\", \"dateCreated\": \"$dateParsed2\", \"fingerprintId\": 1, \"fingerprintStatus\": \"pending\", \"isAdmin\": false, \"lastUpdated\": \"$dateParsed2\"}]}")
+        User.count() == 4
+        cleanup:
+        User.deleteAll(User.list())
+    }
+
+
     void "test searchUser ok nodemcu"() {
         given:
         User user = new User(username: "Pepepe", name: "Pepe Pepe", dni: 1234567890, gender: "male", email: "pepepe@gmail.com", phoneNumber: "+54(11)1234-5678", isAdmin: true, fingerprintId: 1, fingerprintStatus: "pending", password: "100000:b9f0cdb48f6dd12694eaf1de44ab4a071da56765498abe8732dcf941966bf81ce839dfa4dae220e656760b8ff0d3a83103913a67bc9685083f445dda464449b2:51e7688ee57d721ad50622f50bb248ca55e34d01d5ee7168db050990585bfffcb49d3a9fa655cd3178ace50b668b201411a6bbdca18b8d4177307a33e842db6a", accessToken: "52f49b38931efb982422f593a0b1c261e357e943c81fbe4855d39e15f26db502553dd6423246480e537af51768ae27a45b3ffdea1ef8dbb61b1a5fac0a428fd4")

@@ -90,12 +90,16 @@ class UserController {
             params.sortBy = "username"
         }
 
+        if (params.username) {
+            params.fingerprintStatus = null
+        }
+
         if (params.fingerprintStatus && (params.fingerprintStatus != "unenrolled" && params.fingerprintStatus != "pending" && params.fingerprintStatus != "enrolled")) {
             log.error("Invalid value for parameter: fingerprintStatus!")
             throw new BadRequestException("Valor inválido para el parámetro: estado de huella!")
         }
 
-        Map queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus, params.sortBy, params.order)
+        Map queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus, params.sortBy, params.order, params.username)
         log.info("QueryUsers: " + queryUsers)
 
         def resp = [:]
