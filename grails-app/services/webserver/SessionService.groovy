@@ -20,8 +20,11 @@ class SessionService {
 
         if (PasswordHash.validatePassword(password,user.password)) {
             def accessToken = tokenService.generateAccessToken(user.id)
+            def resp = [:]
+            resp.id = user.id
+            resp.accessToken = accessToken
             log.info("Log in successful!")
-            return accessToken
+            return resp
         }
 
         log.error("Invalid password!")

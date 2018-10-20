@@ -128,7 +128,7 @@ class SessionControllerIntegrationSpec extends IntegrationSpec {
         controller.doLogin()
         then:
         controller.response.status == 201
-        controller.response.json == JSON.parse("{\"accessToken\": $user.accessToken}")
+        controller.response.json == JSON.parse("{\"accessToken\": $user.accessToken, \"id\": $user.id}")
         User savedUser = User.findById(user.id)
         savedUser.accessToken == user.accessToken
         User.count() == 1

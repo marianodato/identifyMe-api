@@ -20,10 +20,8 @@ class SessionController {
         utilsService.validateFields('fields', request, ['username', 'password'])
         utilsService.validateFields('params', parameters, null, ['accessToken'])
 
-        def accessToken = sessionService.doLogin(request.username, request.password)
-        log.info("AccessToken: " + accessToken)
-        def resp = [:]
-        resp.accessToken = accessToken
+        def resp = sessionService.doLogin(request.username, request.password)
+        log.info("Response: " + resp)
         response.status = 201
         render resp as JSON
     }
