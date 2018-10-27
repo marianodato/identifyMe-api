@@ -99,7 +99,13 @@ class UserController {
             throw new BadRequestException("Valor inválido para el parámetro: estado de huella!")
         }
 
-        Map queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus, params.sortBy, params.order, params.username)
+        if (params.disablePaging) {
+            params.disablePaging = params.disablePaging as Boolean
+        } else {
+            params.disablePaging = false
+        }
+
+        Map queryUsers = userService.searchUsers(params.offset, params.limit, params.fingerprintStatus, params.sortBy, params.order, params.username, params.disablePaging)
         log.info("QueryUsers: " + queryUsers)
 
         def resp = [:]
@@ -126,7 +132,7 @@ class UserController {
 
         def paging = [:]
         paging.total = queryUsers.total
-        paging.limit = params.limit
+        paging.limit = queryUsers.limit
         paging.offset = queryUsers.offset
 
         resp.paging = paging

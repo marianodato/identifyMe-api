@@ -101,7 +101,7 @@ class UserService {
     }
 
     def searchUsers(
-            def offset, def limit, String fingerprintStatus, String sortBy, String filterOrder, String username) {
+            def offset, def limit, String fingerprintStatus, String sortBy, String filterOrder, String username, def disablePaging) {
         log.info("UsersService - searchUsers")
         def total
 
@@ -111,6 +111,10 @@ class UserService {
             total = User.countByUsernameIlike("%" + username + "%")
         } else {
             total = User.count()
+        }
+
+        if (disablePaging) {
+            limit = total
         }
 
         def offsetCount = (total / limit) as Integer
@@ -140,7 +144,7 @@ class UserService {
         }
 
         log.info("Users found!")
-        return [results: users, offset: offset, total: total]
+        return [results: users, offset: offset, total: total, limit: limit]
     }
 
     def getUser(def userId) {
