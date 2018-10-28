@@ -153,6 +153,11 @@ class UserController {
 
         def user = tokenService.getUser(params.accessToken)
 
+        log.info("user.id: " + user.id)
+        log.info("params.id: " + params.id)
+
+        params.id = params.id as Integer
+
         if (user.id != params.id) {
             userService.validateAdminUser(user)
         }
@@ -189,6 +194,8 @@ class UserController {
 
         def user = tokenService.getUser(params.accessToken)
 
+        params.id = params.id as Integer
+
         if (user.id != params.id) {
             userService.validateAdminUser(user)
         }
@@ -220,10 +227,12 @@ class UserController {
             utilsService.validateFields('fields', request, ['serialNumber', 'atMacAddress', 'compileDate', 'signature'])
             utilsService.checkSignature(request)
             isNodeMCU = true
+            params.id = params.id as Integer
         } else {
 
             utilsService.validateFields('params', parameters, ['accessToken', 'id'])
             caller = tokenService.getUser(params.accessToken)
+            params.id = params.id as Integer
             if (caller.id != params.id) {
                 userService.validateAdminUser(caller)
             }

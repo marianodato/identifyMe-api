@@ -60,6 +60,8 @@ class RegistrationRecordController {
         utilsService.validateFields('params', parameters, ['fingerprintId'])
         utilsService.checkSignature(request)
 
+        params.fingerprintId = params.fingerprintId as Integer
+
         def user = userService.getUserByFingerprintId(params.fingerprintId)
         def registrationRecord = registrationRecordService.modifyRegistrationRecord(user)
         log.info("modifyRegistrationRecord: " + registrationRecord)
@@ -86,6 +88,10 @@ class RegistrationRecordController {
 
         utilsService.validateFields('params', parameters, ['accessToken'])
         def user = tokenService.getUser(params.accessToken)
+
+        if (params.userId) {
+            params.userId = params.userId as Integer
+        }
 
         if (user.id != params.userId) {
             userService.validateAdminUser(user)
