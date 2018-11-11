@@ -33,7 +33,7 @@ class RegistrationRecordController {
         resp.id = newRegistrationRecord.id
         resp.entryTime = utilsService.formatDate(newRegistrationRecord.entryTime)
         resp.departureTime = null
-        resp.secondsInSystem = newRegistrationRecord.secondsInSystem
+        resp.timeInSystem = null
         resp.userId = newRegistrationRecord.user.id
         resp.userUsername = newRegistrationRecord.user.username
         response.status = 201
@@ -70,7 +70,8 @@ class RegistrationRecordController {
         resp.id = registrationRecord.id
         resp.entryTime = utilsService.formatDate(registrationRecord.entryTime)
         resp.departureTime = utilsService.formatDate(registrationRecord.departureTime)
-        resp.secondsInSystem = registrationRecord.secondsInSystem
+        String timeInSystem = new GregorianCalendar(0, 0, 0, 0, 0, registrationRecord.secondsInSystem as Integer).time.format('HH:mm:ss')
+        resp.timeInSystem = timeInSystem
         resp.userId = registrationRecord.user.id
         resp.userUsername = registrationRecord.user.username
         response.status = 200
@@ -124,7 +125,12 @@ class RegistrationRecordController {
             } else {
                 newRegistrationRecord.departureTime = null
             }
-            newRegistrationRecord.secondsInSystem = it.secondsInSystem
+            if (it.secondsInSystem != null) {
+                String timeInSystem = new GregorianCalendar(0, 0, 0, 0, 0, newRegistrationRecord.secondsInSystem as Integer).time.format('HH:mm:ss')
+                newRegistrationRecord.timeInSystem = timeInSystem
+            } else {
+                newRegistrationRecord.timeInSystem = null
+            }
             newRegistrationRecord.userId = it.user.id
             newRegistrationRecord.userFingerprintId = it.user.fingerprintId
             newRegistrationRecord.userFingerprintStatus = it.user.fingerprintStatus
