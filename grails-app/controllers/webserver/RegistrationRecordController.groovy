@@ -126,7 +126,7 @@ class RegistrationRecordController {
                 newRegistrationRecord.departureTime = null
             }
             if (it.secondsInSystem != null) {
-                String timeInSystem = new GregorianCalendar(0, 0, 0, 0, 0, newRegistrationRecord.secondsInSystem as Integer).time.format('HH:mm:ss')
+                String timeInSystem = new GregorianCalendar(0, 0, 0, 0, 0, it.secondsInSystem as Integer).time.format('HH:mm:ss')
                 newRegistrationRecord.timeInSystem = timeInSystem
             } else {
                 newRegistrationRecord.timeInSystem = null
