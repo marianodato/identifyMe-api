@@ -74,7 +74,6 @@
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/lib/org.grails/grails-datastore-gorm/jars/grails-datastore-gorm-3.1.4.RELEASE.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/javassist/javassist/3.17.1-GA/javassist-3.17.1-GA.jar!/" />
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/lib/org.grails/grails-datastore-core/jars/grails-datastore-core-3.1.4.RELEASE.jar!/" />
-          <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.2/commons-logging-1.2.jar!/" />
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/lib/org.springframework/spring-core/jars/spring-core-4.1.5.RELEASE.jar!/" />
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/dist/grails-plugin-converters-2.5.0.jar!/" />
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/dist/grails-plugin-domain-class-2.5.0.jar!/" />
@@ -156,7 +155,6 @@
           <root url="jar://$MAVEN_REPOSITORY$/com/fasterxml/classmate/1.0.0/classmate-1.0.0.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/javax/validation/validation-api/1.1.0.Final/validation-api-1.1.0.Final.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/hibernate/hibernate-validator/5.1.3.Final/hibernate-validator-5.1.3.Final.jar!/" />
-          <root url="jar://$MAVEN_REPOSITORY$/org/springframework/spring-test/4.2.1.RELEASE/spring-test-4.2.1.RELEASE.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/mysql/mysql-connector-java/5.1.29/mysql-connector-java-5.1.29.jar!/" />
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/dist/grails-resources-2.5.0.jar!/" />
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/lib/log4j/log4j/jars/log4j-1.2.17.jar!/" />
@@ -202,6 +200,7 @@
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/lib/net.java.dev.jna/jna/jars/jna-4.0.0.jar!/" />
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/lib/org.apache.ant/ant-junit/jars/ant-junit-1.8.4.jar!/" />
           <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/lib/org.apache.ant/ant-trax/jars/ant-trax-1.7.1.jar!/" />
+          <root url="jar://$USER_HOME$/.sdkman/candidates/grails/2.5.0/lib/org.springframework/spring-test/jars/spring-test-4.1.5.RELEASE.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
