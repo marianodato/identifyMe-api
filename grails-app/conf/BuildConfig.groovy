@@ -12,7 +12,7 @@ grails.project.fork = [
     //  compile: [maxMemory: 256, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
 
     // configure settings for the test-app JVM, uses the daemon by default
-    test: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, daemon:true],
+    test: false,
     // configure settings for the run-app JVM
     run: [maxMemory: 768, minMemory: 64, debug: false, maxPerm: 256, forkReserve:false],
     // configure settings for the run-war JVM
@@ -48,6 +48,7 @@ grails.project.dependency.resolution = {
 
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
+        compile 'org.openclover:clover:4.2.0'
         // runtime 'org.postgresql:postgresql:9.3-1101-jdbc41'
         // test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
         runtime 'mysql:mysql-connector-java:5.1.29'
@@ -59,6 +60,7 @@ grails.project.dependency.resolution = {
         build ":tomcat:7.0.55.2" // or ":tomcat:8.0.22"
 
         // plugins for the compile step
+        compile ':clover:4.2.0'
         // compile ":scaffolding:2.1.2"
         // compile ':cache:1.1.8'
         // asset-pipeline 2.0+ requires Java 7, use version 1.9.x with Java 6
@@ -74,5 +76,23 @@ grails.project.dependency.resolution = {
         //compile ":less-asset-pipeline:1.10.0"
         //compile ":coffee-asset-pipeline:1.8.0"
         //compile ":handlebars-asset-pipeline:1.3.0.3"
+    }
+}
+
+clover {
+    setuptask = { ant, binding, plugin ->
+        ant.'clover-setup'(instrumentationLevel: "method",
+                initstring: "${binding.projectWorkDir}/target/clover/clover.db") {
+            ant.fileset(dir: "grails-app") {
+                include(name: "**/*.groovy")
+                include(name: "**/*.java")
+                exclude(name: "**/conf/**")
+            }
+            ant.fileset(dir: "src") {
+                include(name: "**/*.groovy")
+                include(name: "**/*.java")
+                exclude(name: "**/webserver/exception/**")
+            }
+        }
     }
 }
